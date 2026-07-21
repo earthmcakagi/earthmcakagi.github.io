@@ -2,64 +2,54 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>セキュアログインサイト</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログイン・新規登録サイト</title>
     <!-- reCAPTCHA v2 APIの読み込み -->
     <script src="https://google.com" async defer></script>
     <style>
-        .container { max-width: 350px; margin: 50px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; font-family: sans-serif; box-sizing: border-box; }
+        .container { max-width: 350px; margin: 40px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; font-family: sans-serif; box-sizing: border-box; }
         .hidden { display: none !important; }
-        
-        /* モード切り替え用のタブボタングループ */
-        .tab-group { display: flex; margin-bottom: 20px; border-bottom: 2px solid #ccc; }
-        .tab-btn { flex: 1; padding: 10px; background: #f8f9fa; border: none; cursor: pointer; font-size: 14px; font-weight: bold; color: #6c757d; }
-        .tab-btn.active { background: #fff; border-bottom: 2px solid #007bff; color: #007bff; }
-        
         .input-group { margin-bottom: 12px; }
         .input-group label { display: block; margin-bottom: 4px; font-weight: bold; }
         .input-group input { width: 100%; padding: 8px; box-sizing: border-box; }
         .captcha-group { margin: 15px 0; display: flex; justify-content: center; }
-        
-        /* アクション実行ボタン */
-        .action-btn { display: block; width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 15px; }
-        .action-btn:hover { background: #0056b3; }
-        
+        .btn { display: block; width: 100%; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; margin-bottom: 10px; box-sizing: border-box; }
+        .primary-btn { background: #007bff; color: white; }
+        .secondary-btn { background: #e2e3e5; color: #383d41; }
+        .danger-btn { background: #dc3545; color: white; }
         .error { color: red; font-size: 14px; margin-top: 10px; font-weight: bold; text-align: center; }
     </style>
 </head>
 <body>
 
-    <!-- 1. 認証セクション -->
+    <!-- 1. ログイン/新規登録の統合フォーム -->
     <div id="authSection" class="container">
-        
-        <!-- 明示的な切り替えタブボタン -->
-        <div class="tab-group" id="tabGroup">
-            <button class="tab-btn active" id="tabLogin">ログイン</button>
-            <button class="tab-btn" id="tabRegister">新規登録</button>
-        </div>
-        
-        <h2 id="formTitle" style="text-align: center; margin-bottom: 20px; display: none;">ログイン</h2>
+        <h2 id="formTitle" style="text-align: center; margin-top: 0;">ログイン</h2>
         
         <div class="input-group" id="emailGroup">
             <label>メールアドレス</label>
-            <input type="email" id="email">
+            <input type="email" id="email" placeholder="example@gmail.com">
         </div>
         
         <div class="input-group" id="passwordGroup">
             <label>パスワード</label>
-            <input type="password" id="password">
+            <input type="password" id="password" placeholder="••••••••">
         </div>
         
         <div class="input-group hidden" id="codeGroup">
-            <label>確認コード（メールに送信された6桁）</label>
-            <input type="text" id="verifyCode">
+            <label>確認コード（メールをご確認ください）</label>
+            <input type="text" id="verifyCode" placeholder="6桁の数字">
         </div>
 
         <div class="captcha-group hidden" id="captchaContainer">
+            <!-- あなたのサイトキーを設定済み -->
             <div class="g-recaptcha" data-sitekey="6Le7Cl4tAAAAABFdmoBnlM5doq_6TPkzDim6lYJI"></div>
         </div>
 
-        <!-- 決定ボタン -->
-        <button id="submitBtn" class="action-btn">ログイン</button>
+        <!-- アクションボタン（クリックを100%発生させるため独立配置） -->
+        <button type="button" id="submitBtn" class="btn primary-btn">ログイン</button>
+        <button type="button" id="toggleBtn" class="btn secondary-btn">新規アカウント作成はこちら</button>
+        
         <div id="errorMsg" class="error"></div>
     </div>
 
@@ -67,80 +57,63 @@
     <div id="mainSection" class="container hidden">
         <h2 style="text-align: center;">ようこそ！</h2>
         <p style="text-align: center;">ログイン中のアカウント: <br><strong id="userEmail"></strong></p>
-        <button id="logoutBtn" class="action-btn" style="background:#dc3545;">ログアウト</button>
+        <button type="button" id="logoutBtn" class="btn danger-btn">ログアウト</button>
     </div>
 
     <script>
-        // 【重要】ここにあなたのGASのWebアプリURLを貼り付けてください
+        // 【重要】あなたのGASのWebアプリURLをここに貼り付けてください
         const GAS_URL = "https://script.google.com/macros/s/AKfycbzSMkPMAgAxFGeDd7f_rjr2SWUrquxWzbP6ICfpzUdvQZf6imaN0jo7hRzsujyjUxrtQA/exec"; 
 
-        let mode = "login";
+        // 状態管理変数 ("login", "register", "verify")
+        let currentMode = "login";
 
-        window.addEventListener("DOMContentLoaded", () => {
+        // 自動ログイン確認（Cookieの代替）
+        window.onload = function() {
             const token = localStorage.getItem("auth_token");
             const email = localStorage.getItem("auth_email");
             if (token && email) {
-                showMainPage(email);
+                document.getElementById("authSection").classList.add("hidden");
+                document.getElementById("mainSection").classList.remove("hidden");
+                document.getElementById("userEmail").textContent = email;
             }
-        });
+        };
 
-        // タブボタン：ログインを選択したとき
-        document.getElementById("tabLogin").addEventListener("click", () => {
-            switchMode("login");
-        });
+        // 「新規アカウント作成はこちら」ボタンが押されたときの処理
+        document.getElementById("toggleBtn").onclick = function() {
+            document.getElementById("errorMsg").textContent = "";
+            if (typeof grecaptcha !== 'undefined') {
+                grecaptcha.reset();
+            }
 
-        // タブボタン：新規登録を選択したとき
-        document.getElementById("tabRegister").addEventListener("click", () => {
-            switchMode("register");
-        });
-
-        // 表示モードを切り替える関数
-        function switchMode(targetMode) {
-            const errorMsg = document.getElementById("errorMsg");
-            errorMsg.textContent = "";
-            grecaptcha.reset();
-            mode = targetMode;
-
-            // タブの活動状態（CSS）を切り替え
-            if (mode === "login") {
-                document.getElementById("tabLogin").classList.add("active");
-                document.getElementById("tabRegister").classList.remove("active");
-                document.getElementById("tabGroup").classList.remove("hidden"); // タブを表示
-                
-                document.getElementById("submitBtn").textContent = "ログイン";
-                document.getElementById("passwordGroup").classList.remove("hidden");
-                document.getElementById("captchaContainer").classList.add("hidden");
-                document.getElementById("codeGroup").classList.add("hidden");
-            } 
-            else if (mode === "register") {
-                document.getElementById("tabLogin").classList.remove("active");
-                document.getElementById("tabRegister").classList.add("active");
-                document.getElementById("tabGroup").classList.remove("hidden");
-                
+            if (currentMode === "login") {
+                currentMode = "register";
+                document.getElementById("formTitle").textContent = "新規登録";
                 document.getElementById("submitBtn").textContent = "次へ（確認メール送信）";
-                document.getElementById("passwordGroup").classList.remove("hidden");
+                document.getElementById("toggleBtn").textContent = "すでにアカウントをお持ちの方";
+                
                 document.getElementById("captchaContainer").classList.remove("hidden");
+                document.getElementById("passwordGroup").classList.remove("hidden");
+                document.getElementById("codeGroup").classList.add("hidden");
+            } else {
+                currentMode = "login";
+                document.getElementById("formTitle").textContent = "ログイン";
+                document.getElementById("submitBtn").textContent = "ログイン";
+                document.getElementById("toggleBtn").textContent = "新規アカウント作成はこちら";
+                
+                document.getElementById("captchaContainer").classList.add("hidden");
+                document.getElementById("passwordGroup").classList.remove("hidden");
                 document.getElementById("codeGroup").classList.add("hidden");
             }
-            else if (mode === "verify") {
-                // コード確認時はタブでの誤操作を防ぐためタブを隠す
-                document.getElementById("tabGroup").classList.add("hidden");
-                
-                document.getElementById("submitBtn").textContent = "アカウントを有効化";
-                document.getElementById("codeGroup").classList.remove("hidden");
-                document.getElementById("passwordGroup").classList.add("hidden");
-                document.getElementById("captchaContainer").classList.add("hidden");
-            }
-        }
+        };
 
-        // 送信ボタンの処理
-        document.getElementById("submitBtn").addEventListener("click", async () => {
+        // 「ログイン」または「次へ」の決定ボタンが押されたときの処理
+        document.getElementById("submitBtn").onclick = async function() {
             const email = document.getElementById("email").value;
             const password = document.getElementById("password").value;
             const errorMsg = document.getElementById("errorMsg");
             errorMsg.textContent = "通信中...";
 
-            if (!email || (!password && mode !== "verify")) {
+            if (!email || (!password && currentMode !== "verify")) {
                 errorMsg.textContent = "入力項目が不足しています";
                 return;
             }
@@ -148,27 +121,35 @@
             try {
                 let payload = { email: email };
 
-                if (mode === "register") {
+                // A. 新規登録処理
+                if (currentMode === "register") {
                     const token = grecaptcha.getResponse();
                     if (!token) {
                         errorMsg.textContent = "「私はロボットではありません」にチェックを入れてください。";
                         return;
                     }
-
                     payload.action = "register";
                     payload.password = password;
                     payload.recaptchaToken = token;
 
                     const res = await callGAS(payload);
                     if (res.status === "success") {
-                        switchMode("verify");
+                        currentMode = "verify";
+                        document.getElementById("formTitle").textContent = "コード確認";
+                        document.getElementById("submitBtn").textContent = "アカウントを有効化";
+                        document.getElementById("toggleBtn").classList.add("hidden"); // 誤操作防止
+                        
+                        document.getElementById("codeGroup").classList.remove("hidden");
+                        document.getElementById("passwordGroup").classList.add("hidden");
+                        document.getElementById("captchaContainer").classList.add("hidden");
                         errorMsg.textContent = "メールに送信されたコードを入力してください。";
                     } else {
                         errorMsg.textContent = res.message;
                         grecaptcha.reset();
                     }
                 }
-                else if (mode === "verify") {
+                // B. コード確認処理
+                else if (currentMode === "verify") {
                     payload.action = "verify_code";
                     payload.code = document.getElementById("verifyCode").value;
 
@@ -180,7 +161,8 @@
                         errorMsg.textContent = res.message;
                     }
                 }
-                else if (mode === "login") {
+                // C. ログイン処理
+                else if (currentMode === "login") {
                     payload.action = "login";
                     payload.password = password;
 
@@ -188,18 +170,18 @@
                     if (res.status === "success") {
                         localStorage.setItem("auth_token", res.token);
                         localStorage.setItem("auth_email", res.email);
-                        showMainPage(res.email);
+                        location.reload();
                     } else {
                         errorMsg.textContent = res.message;
                     }
                 }
-
             } catch (err) {
-                errorMsg.textContent = "エラーが発生しました。URLや設定を確認してください。";
+                errorMsg.textContent = "エラーが発生しました。設定を確認してください。";
                 console.error(err);
             }
-        });
+        };
 
+        // GASへの通信共通関数
         async function callGAS(payload) {
             const response = await fetch(GAS_URL, {
                 method: "POST",
@@ -208,17 +190,12 @@
             return await response.json();
         }
 
-        function showMainPage(email) {
-            document.getElementById("authSection").classList.add("hidden");
-            document.getElementById("mainSection").classList.remove("hidden");
-            document.getElementById("userEmail").textContent = email;
-        }
-
-        document.getElementById("logoutBtn").addEventListener("click", () => {
+        // ログアウトボタンの処理
+        document.getElementById("logoutBtn").onclick = function() {
             localStorage.removeItem("auth_token");
             localStorage.removeItem("auth_email");
             location.reload();
-        });
+        };
     </script>
 </body>
 </html>
