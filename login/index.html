@@ -22,23 +22,27 @@
     <!-- 1. ログイン/新規登録フォーム -->
     <div id="authSection" class="container">
         <h2 id="formTitle">ログイン</h2>
-        <div class="input-group">
+        
+        <!-- メールアドレス入力欄（常に表示） -->
+        <div class="input-group" id="emailGroup">
             <label>メールアドレス</label>
             <input type="email" id="email">
         </div>
+        
+        <!-- パスワード入力欄（常に表示、コード確認時のみプログラムで隠す） -->
         <div class="input-group" id="passwordGroup">
             <label>パスワード</label>
             <input type="password" id="password">
         </div>
         
-        <!-- 新規登録時のみ表示される確認コード入力欄 -->
+        <!-- 新規登録の確認コード入力欄（初期状態は隠す） -->
         <div class="input-group hidden" id="codeGroup">
             <label>確認コード（メールに送信された6桁）</label>
             <input type="text" id="verifyCode">
         </div>
 
-        <!-- 提供されたサイトキーを設定済み -->
-        <div class="captcha-group" id="captchaContainer">
+        <!-- reCAPTCHA v2 チェックボックス（初期状態はログイン用なので隠す） -->
+        <div class="captcha-group hidden" id="captchaContainer">
             <div class="g-recaptcha" data-sitekey="6Le7Cl4tAAAAABFdmoBnlM5doq_6TPkzDim6lYJI"></div>
         </div>
 
@@ -66,37 +70,45 @@
             if (token && email) {
                 showMainPage(email);
             }
-            document.getElementById("captchaContainer").classList.add("hidden");
         });
 
+        // ログインと新規登録のモード切り替え処理
         document.getElementById("toggleMode").addEventListener("click", () => {
             const errorMsg = document.getElementById("errorMsg");
             errorMsg.textContent = "";
-            grecaptcha.reset();
+            grecaptcha.reset(); // reCAPTCHAをリセット
 
             if (mode === "login") {
                 mode = "register";
                 document.getElementById("formTitle").textContent = "新規登録";
                 document.getElementById("submitBtn").textContent = "次へ（確認メール送信）";
                 document.getElementById("toggleMode").textContent = "すでにアカウントをお持ちの方";
+                
+                // 新規登録に必要な入力欄とreCAPTCHAを表示する
+                document.getElementById("passwordGroup").classList.remove("hidden");
                 document.getElementById("captchaContainer").classList.remove("hidden");
+                document.getElementById("codeGroup").classList.add("hidden");
             } else {
                 mode = "login";
                 document.getElementById("formTitle").textContent = "ログイン";
                 document.getElementById("submitBtn").textContent = "ログイン";
                 document.getElementById("toggleMode").textContent = "新規アカウント作成はこちら";
-                document.getElementById("codeGroup").classList.add("hidden");
+                
+                // ログインに必要な状態に戻す
                 document.getElementById("passwordGroup").classList.remove("hidden");
                 document.getElementById("captchaContainer").classList.add("hidden");
+                document.getElementById("codeGroup").classList.add("hidden");
             }
         });
 
+        // 送信ボタンが押されたときの処理
         document.getElementById("submitBtn").addEventListener("click", async () => {
             const email = document.getElementById("email").value;
             const password = document.getElementById("password").value;
             const errorMsg = document.getElementById("errorMsg");
             errorMsg.textContent = "通信中...";
 
+            // コード確認モード以外では、メアドとパスワードが必須
             if (!email || (!password && mode !== "verify")) {
                 errorMsg.textContent = "入力項目が不足しています";
                 return;
@@ -105,6 +117,7 @@
             try {
                 let payload = { email: email };
 
+                // A. 新規登録モード
                 if (mode === "register") {
                     const token = grecaptcha.getResponse();
                     if (!token) {
@@ -120,6 +133,7 @@
                     if (res.status === "success") {
                         mode = "verify";
                         document.getElementById("formTitle").textContent = "コード確認";
+                        // コード入力欄だけを表示し、他を隠す
                         document.getElementById("codeGroup").classList.remove("hidden");
                         document.getElementById("passwordGroup").classList.add("hidden");
                         document.getElementById("captchaContainer").classList.add("hidden");
@@ -130,6 +144,7 @@
                         grecaptcha.reset();
                     }
                 }
+                // B. 確認コード照合モード
                 else if (mode === "verify") {
                     payload.action = "verify_code";
                     payload.code = document.getElementById("verifyCode").value;
@@ -142,6 +157,7 @@
                         errorMsg.textContent = res.message;
                     }
                 }
+                // C. ログインモード
                 else if (mode === "login") {
                     payload.action = "login";
                     payload.password = password;
@@ -162,6 +178,7 @@
             }
         });
 
+        // GASへの非同期通信
         async function callGAS(payload) {
             const response = await fetch(GAS_URL, {
                 method: "POST",
@@ -170,12 +187,14 @@
             return await response.json();
         }
 
+        // 会員ページの表示切り替え
         function showMainPage(email) {
             document.getElementById("authSection").classList.add("hidden");
             document.getElementById("mainSection").classList.remove("hidden");
             document.getElementById("userEmail").textContent = email;
         }
 
+        // ログアウト処理
         document.getElementById("logoutBtn").addEventListener("click", () => {
             localStorage.removeItem("auth_token");
             localStorage.removeItem("auth_email");
