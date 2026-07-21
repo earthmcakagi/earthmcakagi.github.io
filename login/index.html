@@ -7,61 +7,67 @@
     <script src="https://google.com" async defer></script>
     <style>
         .container { max-width: 350px; margin: 50px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; font-family: sans-serif; box-sizing: border-box; }
-        .hidden { display: none !important; } /* 強制的に非表示にする */
+        .hidden { display: none !important; }
+        
+        /* モード切り替え用のタブボタングループ */
+        .tab-group { display: flex; margin-bottom: 20px; border-bottom: 2px solid #ccc; }
+        .tab-btn { flex: 1; padding: 10px; background: #f8f9fa; border: none; cursor: pointer; font-size: 14px; font-weight: bold; color: #6c757d; }
+        .tab-btn.active { background: #fff; border-bottom: 2px solid #007bff; color: #007bff; }
+        
         .input-group { margin-bottom: 12px; }
         .input-group label { display: block; margin-bottom: 4px; font-weight: bold; }
         .input-group input { width: 100%; padding: 8px; box-sizing: border-box; }
-        .captcha-group { margin: 15px 0; display: flex; justify-content: center; } /* 中央寄せ */
+        .captcha-group { margin: 15px 0; display: flex; justify-content: center; }
         
-        /* ボタンのスタイル修正（要素の重なりを防ぐためブロック化） */
-        button { display: block; width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-bottom: 15px; }
+        /* アクション実行ボタン */
+        .action-btn { display: block; width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 15px; }
+        .action-btn:hover { background: #0056b3; }
         
-        /* リンクのスタイル修正（重なり防止のためクリアとマージンを設定） */
-        .toggle-link { display: block; clear: both; text-align: center; padding: 10px 0; font-size: 14px; color: #007bff; cursor: pointer; text-decoration: underline; }
-        .toggle-link:hover { color: #0056b3; }
-        
-        .error { color: red; font-size: 14px; margin-top: 5px; font-weight: bold; text-align: center; }
+        .error { color: red; font-size: 14px; margin-top: 10px; font-weight: bold; text-align: center; }
     </style>
 </head>
 <body>
 
-    <!-- 1. ログイン/新規登録フォーム -->
+    <!-- 1. 認証セクション -->
     <div id="authSection" class="container">
-        <h2 id="formTitle" style="text-align: center; margin-bottom: 20px;">ログイン</h2>
         
-        <!-- メールアドレス入力欄 -->
+        <!-- 明示的な切り替えタブボタン -->
+        <div class="tab-group" id="tabGroup">
+            <button class="tab-btn active" id="tabLogin">ログイン</button>
+            <button class="tab-btn" id="tabRegister">新規登録</button>
+        </div>
+        
+        <h2 id="formTitle" style="text-align: center; margin-bottom: 20px; display: none;">ログイン</h2>
+        
         <div class="input-group" id="emailGroup">
             <label>メールアドレス</label>
             <input type="email" id="email">
         </div>
         
-        <!-- パスワード入力欄 -->
         <div class="input-group" id="passwordGroup">
             <label>パスワード</label>
             <input type="password" id="password">
         </div>
         
-        <!-- 新規登録の確認コード入力欄 -->
         <div class="input-group hidden" id="codeGroup">
             <label>確認コード（メールに送信された6桁）</label>
             <input type="text" id="verifyCode">
         </div>
 
-        <!-- reCAPTCHA v2 チェックボックス -->
         <div class="captcha-group hidden" id="captchaContainer">
             <div class="g-recaptcha" data-sitekey="6Le7Cl4tAAAAABFdmoBnlM5doq_6TPkzDim6lYJI"></div>
         </div>
 
-        <button id="submitBtn">ログイン</button>
+        <!-- 決定ボタン -->
+        <button id="submitBtn" class="action-btn">ログイン</button>
         <div id="errorMsg" class="error"></div>
-        <div id="toggleMode" class="toggle-link">新規アカウント作成はこちら</div>
     </div>
 
     <!-- 2. ログイン後のマイページ -->
     <div id="mainSection" class="container hidden">
         <h2 style="text-align: center;">ようこそ！</h2>
         <p style="text-align: center;">ログイン中のアカウント: <br><strong id="userEmail"></strong></p>
-        <button id="logoutBtn" style="background:#dc3545;">ログアウト</button>
+        <button id="logoutBtn" class="action-btn" style="background:#dc3545;">ログアウト</button>
     </div>
 
     <script>
@@ -78,32 +84,54 @@
             }
         });
 
-        // モード切り替え処理
-        document.getElementById("toggleMode").addEventListener("click", () => {
+        // タブボタン：ログインを選択したとき
+        document.getElementById("tabLogin").addEventListener("click", () => {
+            switchMode("login");
+        });
+
+        // タブボタン：新規登録を選択したとき
+        document.getElementById("tabRegister").addEventListener("click", () => {
+            switchMode("register");
+        });
+
+        // 表示モードを切り替える関数
+        function switchMode(targetMode) {
             const errorMsg = document.getElementById("errorMsg");
             errorMsg.textContent = "";
             grecaptcha.reset();
+            mode = targetMode;
 
+            // タブの活動状態（CSS）を切り替え
             if (mode === "login") {
-                mode = "register";
-                document.getElementById("formTitle").textContent = "新規登録";
-                document.getElementById("submitBtn").textContent = "次へ（確認メール送信）";
-                document.getElementById("toggleMode").textContent = "すでにアカウントをお持ちの方";
+                document.getElementById("tabLogin").classList.add("active");
+                document.getElementById("tabRegister").classList.remove("active");
+                document.getElementById("tabGroup").classList.remove("hidden"); // タブを表示
                 
-                document.getElementById("passwordGroup").classList.remove("hidden");
-                document.getElementById("captchaContainer").classList.remove("hidden");
-                document.getElementById("codeGroup").classList.add("hidden");
-            } else {
-                mode = "login";
-                document.getElementById("formTitle").textContent = "ログイン";
                 document.getElementById("submitBtn").textContent = "ログイン";
-                document.getElementById("toggleMode").textContent = "新規アカウント作成はこちら";
-                
                 document.getElementById("passwordGroup").classList.remove("hidden");
                 document.getElementById("captchaContainer").classList.add("hidden");
                 document.getElementById("codeGroup").classList.add("hidden");
+            } 
+            else if (mode === "register") {
+                document.getElementById("tabLogin").classList.remove("active");
+                document.getElementById("tabRegister").classList.add("active");
+                document.getElementById("tabGroup").classList.remove("hidden");
+                
+                document.getElementById("submitBtn").textContent = "次へ（確認メール送信）";
+                document.getElementById("passwordGroup").classList.remove("hidden");
+                document.getElementById("captchaContainer").classList.remove("hidden");
+                document.getElementById("codeGroup").classList.add("hidden");
             }
-        });
+            else if (mode === "verify") {
+                // コード確認時はタブでの誤操作を防ぐためタブを隠す
+                document.getElementById("tabGroup").classList.add("hidden");
+                
+                document.getElementById("submitBtn").textContent = "アカウントを有効化";
+                document.getElementById("codeGroup").classList.remove("hidden");
+                document.getElementById("passwordGroup").classList.add("hidden");
+                document.getElementById("captchaContainer").classList.add("hidden");
+            }
+        }
 
         // 送信ボタンの処理
         document.getElementById("submitBtn").addEventListener("click", async () => {
@@ -133,12 +161,7 @@
 
                     const res = await callGAS(payload);
                     if (res.status === "success") {
-                        mode = "verify";
-                        document.getElementById("formTitle").textContent = "コード確認";
-                        document.getElementById("codeGroup").classList.remove("hidden");
-                        document.getElementById("passwordGroup").classList.add("hidden");
-                        document.getElementById("captchaContainer").classList.add("hidden");
-                        document.getElementById("submitBtn").textContent = "アカウントを有効化";
+                        switchMode("verify");
                         errorMsg.textContent = "メールに送信されたコードを入力してください。";
                     } else {
                         errorMsg.textContent = res.message;
