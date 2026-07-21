@@ -4,15 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ログイン・新規登録サイト</title>
-    <!-- reCAPTCHA v2 APIの読み込み -->
-    <script src="https://google.com" async defer></script>
     <style>
         .container { max-width: 350px; margin: 40px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; font-family: sans-serif; box-sizing: border-box; }
         .hidden { display: none !important; }
         .input-group { margin-bottom: 12px; }
         .input-group label { display: block; margin-bottom: 4px; font-weight: bold; }
         .input-group input { width: 100%; padding: 8px; box-sizing: border-box; }
-        .captcha-group { margin: 15px 0; display: flex; justify-content: center; }
         .btn { display: block; width: 100%; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; margin-bottom: 10px; box-sizing: border-box; }
         .primary-btn { background: #007bff; color: white; }
         .secondary-btn { background: #e2e3e5; color: #383d41; }
@@ -41,12 +38,6 @@
             <input type="text" id="verifyCode" placeholder="6桁の数字">
         </div>
 
-        <div class="captcha-group hidden" id="captchaContainer">
-            <!-- あなたのサイトキーを設定済み -->
-            <div class="g-recaptcha" data-sitekey="6Le7Cl4tAAAAABFdmoBnlM5doq_6TPkzDim6lYJI"></div>
-        </div>
-
-        <!-- アクションボタン（クリックを100%発生させるため独立配置） -->
         <button type="button" id="submitBtn" class="btn primary-btn">ログイン</button>
         <button type="button" id="toggleBtn" class="btn secondary-btn">新規アカウント作成はこちら</button>
         
@@ -62,12 +53,10 @@
 
     <script>
         // 【重要】あなたのGASのWebアプリURLをここに貼り付けてください
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbx7pLkjCiR9aN658PG9wdm7Fr9_zpkhx_8hTWbJsRHYZsCdkdA36aKkp9ucRkJ5pGhj/exec"; 
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwEXt0TTv7K-bZigY65vGQzVZol-Cc-rJui9xPNY0YRs0z0Q_wBvbYpiMODNUCphurThw/exec"; 
 
-        // 状態管理変数 ("login", "register", "verify")
         let currentMode = "login";
 
-        // 自動ログイン確認（Cookieの代替）
         window.onload = function() {
             const token = localStorage.getItem("auth_token");
             const email = localStorage.getItem("auth_email");
@@ -78,12 +67,8 @@
             }
         };
 
-        // 「新規アカウント作成はこちら」ボタンが押されたときの処理
         document.getElementById("toggleBtn").onclick = function() {
             document.getElementById("errorMsg").textContent = "";
-            if (typeof grecaptcha !== 'undefined') {
-                grecaptcha.reset();
-            }
 
             if (currentMode === "login") {
                 currentMode = "register";
@@ -91,7 +76,6 @@
                 document.getElementById("submitBtn").textContent = "次へ（確認メール送信）";
                 document.getElementById("toggleBtn").textContent = "すでにアカウントをお持ちの方";
                 
-                document.getElementById("captchaContainer").classList.remove("hidden");
                 document.getElementById("passwordGroup").classList.remove("hidden");
                 document.getElementById("codeGroup").classList.add("hidden");
             } else {
@@ -100,13 +84,11 @@
                 document.getElementById("submitBtn").textContent = "ログイン";
                 document.getElementById("toggleBtn").textContent = "新規アカウント作成はこちら";
                 
-                document.getElementById("captchaContainer").classList.add("hidden");
                 document.getElementById("passwordGroup").classList.remove("hidden");
                 document.getElementById("codeGroup").classList.add("hidden");
             }
         };
 
-        // 「ログイン」または「次へ」の決定ボタンが押されたときの処理
         document.getElementById("submitBtn").onclick = async function() {
             const email = document.getElementById("email").value;
             const password = document.getElementById("password").value;
@@ -121,34 +103,24 @@
             try {
                 let payload = { email: email };
 
-                // A. 新規登録処理
                 if (currentMode === "register") {
-                    const token = grecaptcha.getResponse();
-                    if (!token) {
-                        errorMsg.textContent = "「私はロボットではありません」にチェックを入れてください。";
-                        return;
-                    }
                     payload.action = "register";
                     payload.password = password;
-                    payload.recaptchaToken = token;
 
                     const res = await callGAS(payload);
                     if (res.status === "success") {
                         currentMode = "verify";
                         document.getElementById("formTitle").textContent = "コード確認";
                         document.getElementById("submitBtn").textContent = "アカウントを有効化";
-                        document.getElementById("toggleBtn").classList.add("hidden"); // 誤操作防止
+                        document.getElementById("toggleBtn").classList.add("hidden");
                         
                         document.getElementById("codeGroup").classList.remove("hidden");
                         document.getElementById("passwordGroup").classList.add("hidden");
-                        document.getElementById("captchaContainer").classList.add("hidden");
                         errorMsg.textContent = "メールに送信されたコードを入力してください。";
                     } else {
                         errorMsg.textContent = res.message;
-                        grecaptcha.reset();
                     }
                 }
-                // B. コード確認処理
                 else if (currentMode === "verify") {
                     payload.action = "verify_code";
                     payload.code = document.getElementById("verifyCode").value;
@@ -161,7 +133,6 @@
                         errorMsg.textContent = res.message;
                     }
                 }
-                // C. ログイン処理
                 else if (currentMode === "login") {
                     payload.action = "login";
                     payload.password = password;
@@ -181,7 +152,6 @@
             }
         };
 
-        // GASへの通信共通関数
         async function callGAS(payload) {
             const response = await fetch(GAS_URL, {
                 method: "POST",
@@ -190,7 +160,6 @@
             return await response.json();
         }
 
-        // ログアウトボタンの処理
         document.getElementById("logoutBtn").onclick = function() {
             localStorage.removeItem("auth_token");
             localStorage.removeItem("auth_email");
