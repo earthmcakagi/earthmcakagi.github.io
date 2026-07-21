@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>セキュアログインサイト (v2)</title>
+    <title>セキュアログインサイト</title>
     <!-- reCAPTCHA v2 APIの読み込み -->
     <script src="https://google.com" async defer></script>
     <style>
@@ -37,7 +37,7 @@
             <input type="text" id="verifyCode">
         </div>
 
-        <!-- reCAPTCHA v2 チェックボックス (新規登録時のみ表示) -->
+        <!-- 提供されたサイトキーを設定済み -->
         <div class="captcha-group" id="captchaContainer">
             <div class="g-recaptcha" data-sitekey="6Le7Cl4tAAAAABFdmoBnlM5doq_6TPkzDim6lYJI"></div>
         </div>
@@ -55,33 +55,31 @@
     </div>
 
     <script>
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbx3ZJeYCi389CCf_-r87AwFRnw9Kbd15sF7y2LNkKw0hzFQwhXADDT-akDw0MIEr-tx0g/exec";
+        // 【重要】ここにあなたのGASのWebアプリURLを貼り付けてください
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbzSMkPMAgAxFGeDd7f_rjr2SWUrquxWzbP6ICfpzUdvQZf6imaN0jo7hRzsujyjUxrtQA/exec"; 
 
-        let mode = "login"; // "login", "register", "verify"
+        let mode = "login";
 
-        // ページ読み込み時にLocalStorageをチェックして自動ログイン (Cookieの代替)
         window.addEventListener("DOMContentLoaded", () => {
             const token = localStorage.getItem("auth_token");
             const email = localStorage.getItem("auth_email");
             if (token && email) {
                 showMainPage(email);
             }
-            // 初期状態（ログイン画面）ではreCAPTCHAを非表示にする
             document.getElementById("captchaContainer").classList.add("hidden");
         });
 
-        // ログイン・新規登録のモード切り替え
         document.getElementById("toggleMode").addEventListener("click", () => {
             const errorMsg = document.getElementById("errorMsg");
             errorMsg.textContent = "";
-            grecaptcha.reset(); // reCAPTCHAの状態をリセット
+            grecaptcha.reset();
 
             if (mode === "login") {
                 mode = "register";
                 document.getElementById("formTitle").textContent = "新規登録";
                 document.getElementById("submitBtn").textContent = "次へ（確認メール送信）";
                 document.getElementById("toggleMode").textContent = "すでにアカウントをお持ちの方";
-                document.getElementById("captchaContainer").classList.remove("hidden"); // reCAPTCHAを表示
+                document.getElementById("captchaContainer").classList.remove("hidden");
             } else {
                 mode = "login";
                 document.getElementById("formTitle").textContent = "ログイン";
@@ -89,11 +87,10 @@
                 document.getElementById("toggleMode").textContent = "新規アカウント作成はこちら";
                 document.getElementById("codeGroup").classList.add("hidden");
                 document.getElementById("passwordGroup").classList.remove("hidden");
-                document.getElementById("captchaContainer").classList.add("hidden"); // reCAPTCHAを非表示
+                document.getElementById("captchaContainer").classList.add("hidden");
             }
         });
 
-        // 送信ボタンの処理
         document.getElementById("submitBtn").addEventListener("click", async () => {
             const email = document.getElementById("email").value;
             const password = document.getElementById("password").value;
@@ -108,9 +105,7 @@
             try {
                 let payload = { email: email };
 
-                // A. 新規登録モード
                 if (mode === "register") {
-                    // reCAPTCHA v2 のチェック成否トークンを取得
                     const token = grecaptcha.getResponse();
                     if (!token) {
                         errorMsg.textContent = "「私はロボットではありません」にチェックを入れてください。";
@@ -127,15 +122,14 @@
                         document.getElementById("formTitle").textContent = "コード確認";
                         document.getElementById("codeGroup").classList.remove("hidden");
                         document.getElementById("passwordGroup").classList.add("hidden");
-                        document.getElementById("captchaContainer").classList.add("hidden"); // コード確認時は不要なので隠す
+                        document.getElementById("captchaContainer").classList.add("hidden");
                         document.getElementById("submitBtn").textContent = "アカウントを有効化";
                         errorMsg.textContent = "メールに送信されたコードを入力してください。";
                     } else {
                         errorMsg.textContent = res.message;
-                        grecaptcha.reset(); // 失敗したらreCAPTCHAをリセット
+                        grecaptcha.reset();
                     }
                 }
-                // B. 確認コード照合モード
                 else if (mode === "verify") {
                     payload.action = "verify_code";
                     payload.code = document.getElementById("verifyCode").value;
@@ -148,14 +142,12 @@
                         errorMsg.textContent = res.message;
                     }
                 }
-                // C. ログインモード
                 else if (mode === "login") {
                     payload.action = "login";
                     payload.password = password;
 
                     const res = await callGAS(payload);
                     if (res.status === "success") {
-                        // LocalStorageにトークンを保存
                         localStorage.setItem("auth_token", res.token);
                         localStorage.setItem("auth_email", res.email);
                         showMainPage(res.email);
@@ -165,12 +157,11 @@
                 }
 
             } catch (err) {
-                errorMsg.textContent = "エラーが発生しました。内容を確認してください。";
+                errorMsg.textContent = "エラーが発生しました。URLや設定を確認してください。";
                 console.error(err);
             }
         });
 
-        // GAS通信関数
         async function callGAS(payload) {
             const response = await fetch(GAS_URL, {
                 method: "POST",
@@ -179,14 +170,12 @@
             return await response.json();
         }
 
-        // ログイン後の画面表示
         function showMainPage(email) {
             document.getElementById("authSection").classList.add("hidden");
             document.getElementById("mainSection").classList.remove("hidden");
             document.getElementById("userEmail").textContent = email;
         }
 
-        // ログアウト処理
         document.getElementById("logoutBtn").addEventListener("click", () => {
             localStorage.removeItem("auth_token");
             localStorage.removeItem("auth_email");
