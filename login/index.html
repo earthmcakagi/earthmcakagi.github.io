@@ -1,4 +1,127 @@
-  <!-- 💡 ログイン・新規登録のフォーム部分がここにあるとします -->
+  <!-- ① Google reCAPTCHA v3 の読み込み（GitHubのコードにそのまま追加） -->
+  <!-- ※ render= の後ろにはご自身の reCAPTCHA サイトキーを入れてください -->
+  <script src="https://google.com"></script>
+
+  <!-- ② Firebase と Cookie の処理ロジック（type="module" を指定） -->
+  <script type="module">
+    // 1. Firebase SDKのインポート
+    import { initializeApp } from "https://gstatic.com";
+    import { 
+      getAuth, 
+      createUserWithEmailAndPassword, 
+      signInWithEmailAndPassword
+    } from "https://gstatic.com";
+
+    // 2. Firebase構成オブジェクト（画面の正しい値を反映済み）
+    const firebaseConfig = {
+      apiKey: "AIzaSyBQZAFJpbq7sRh-UoCnX6MGWp7njIcrIFc",
+      authDomain: "://firebaseapp.com",
+      projectId: "akagiid",
+      storageBucket: "://appspot.com",
+      messagingSenderId: "353911508240", // プロジェクト番号
+      appId: "1:353911508240:web:xxxxxxxxxxxxxx" // アプリを追加した際に発行される一意のID
+    };
+
+    // 初期化
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // reCAPTCHAのサイトキー（※ご自身のサイトキーに書き換えてください）
+    const RECAPTCHA_SITE_KEY = "ここに_reCAPTCHA_のサイトキー";
+
+    // 3. Cookie保存用の関数
+    function setCookie(name, value, days) {
+      let expires = "";
+      if (days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+      }
+      // GitHub Pagesは自動でHTTPSになるため、Secure属性をつけて安全に保存します
+      document.cookie = name + "=" + (value || "") + expires + "; path=/; Secure; SameSite=Strict";
+    }
+
+    // 4. reCAPTCHAトークン取得関数
+    function getRecaptchaToken(actionName) {
+      return new Promise((resolve, reject) => {
+        if (typeof grecaptcha === 'undefined') {
+          reject(new Error("reCAPTCHA が読み込まれていません。"));
+          return;
+        }
+        grecaptcha.ready(() => {
+          grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: actionName })
+            .then((token) => resolve(token))
+            .catch((error) => reject(error));
+        });
+      });
+    }
+
+    // 5. 新規登録処理
+    async function handleSignUp(email, password) {
+      try {
+        const recaptchaToken = await getRecaptchaToken('signup');
+        console.log("reCAPTCHA Token (SignUp):", recaptchaToken);
+        
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        
+        const idToken = await user.getIdToken();
+        setCookie("akagi_session", idToken, 7); // Cookieに7日間保存
+        
+        return { success: true, user: user };
+      } catch (error) {
+        return { success: false, error: error.message };
+      }
+    }
+
+    // 6. ログイン処理
+    async function handleSignIn(email, password) {
+      try {
+        const recaptchaToken = await getRecaptchaToken('login');
+        console.log("reCAPTCHA Token (SignIn):", recaptchaToken);
+
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        
+        const idToken = await user.getIdToken();
+        setCookie("akagi_session", idToken, 7); // Cookieに7日間保存
+        
+        return { success: true, user: user };
+      } catch (error) {
+        return { success: false, error: error.message };
+      }
+    }
+
+    // 7. HTMLのボタン（ログイン・新規登録）を押したときのイベント連動
+    // ※入力欄やボタンのIDが異なる場合は、ご自身のHTMLに合わせて書き換えてください
+    document.getElementById("loginButton").addEventListener("click", async () => {
+      const email = document.getElementById("emailInput").value;
+      const password = document.getElementById("passwordInput").value;
+      
+      const result = await handleSignIn(email, password);
+      if (result.success) {
+        alert("ログイン成功！赤城のポータルへ移動します。");
+        window.location.href = "index.html"; // ログイン後の遷移先（例）
+      } else {
+        alert("ログイン失敗: " + result.error);
+      }
+    });
+
+    document.getElementById("signUpButton").addEventListener("click", async () => {
+      const email = document.getElementById("emailInput").value;
+      const password = document.getElementById("passwordInput").value;
+      
+      const result = await handleSignUp(email, password);
+      if (result.success) {
+        alert("アカウント作成＆ログイン成功！");
+        window.location.href = "index.html";
+      } else {
+        alert("登録失敗: " + result.error);
+      }
+    });
+  </script>
+
+<!-- 💡 ログイン・新規登録のフォーム部分がここにあるとします -->
   <form id="loginForm">
     <input type="email" id="emailInput" placeholder="メールアドレス" required>
     <input type="password" id="passwordInput" placeholder="パスワード" required>
@@ -38,7 +161,7 @@
     const auth = getAuth(app);
 
     // reCAPTCHAのサイトキー（※必要に応じてご自身のキーに書き換えてください）
-    const RECAPTCHA_SITE_KEY = "AIzaSyBQZAFJpbq7sRh-UoCnX6MGWp7njIcrIFc";
+    const RECAPTCHA_SITE_KEY = "6Le7Cl4tAAAAABFdmoBnlM5doq_6TPkzDim6lYJI";
 
     // 3. Cookie保存用の関数
     function setCookie(name, value, days) {
