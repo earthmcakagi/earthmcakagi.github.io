@@ -1,117 +1,126 @@
 /* =========================================
-   共通の枠組み・リストの初期化
+   共通の枠組み
 ========================================= */
-.cs-news-wrapper {
+.cs-accent-wrapper {
     width: 100%;
     max-width: 800px;
     margin: 0 auto 2em;
-}
-
-.cs-news-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    border-top: 1px solid #e2e8f0;
-}
-
-.cs-news-item {
-    border-bottom: 1px solid #e2e8f0;
-}
-
-/* =========================================
-   リンク要素（横並びレイアウト）
-========================================= */
-.cs-news-link {
     display: flex;
-    align-items: center; /* 縦方向の中央揃え */
-    padding: 16px 12px;
+    flex-direction: column;
+    gap: 20px; /* ボックス同士の隙間 */
+}
+
+/* =========================================
+   ボックス本体のベーススタイル
+========================================= */
+.cs-accent-box {
+    display: block; /* リンク要素全体をブロック化してクリック範囲を広げる */
+    padding: 24px 32px;
+    border-radius: 0 8px 8px 0; /* 左側は直角、右側だけ角丸にするのが美しさのコツ */
     text-decoration: none !important;
-    color: #334155;
-    transition: background-color 0.3s ease;
+    
+    /* ▼ 必須：左側に太いボーダーの「枠」だけを準備しておく ▼ */
+    border-left: 6px solid transparent; 
+    
+    /* ホバー時のフワッとした浮遊感を作るアニメーション */
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
 }
 
-.cs-news-link:hover {
-    background-color: #f8fafc;
-}
-
-/* =========================================
-   日付
-========================================= */
-.cs-news-date {
-    font-size: 0.9rem;
-    color: #64748b;
-    margin-right: 20px;
-    white-space: nowrap; /* 画面が狭くなっても日付を改行させない */
+/* マウスを乗せたら少し上に浮き上がり、影を落とす */
+.cs-accent-box:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
 }
 
 /* =========================================
-   バッジの基本スタイル
+   内部要素（ヘッダー・タイトル・説明文）
 ========================================= */
-.cs-news-badge {
-    display: inline-block;
+.cs-accent-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.cs-accent-badge {
     font-size: 0.75rem;
     font-weight: 700;
-    line-height: 1;
-    padding: 6px 10px;
+    padding: 4px 10px;
     border-radius: 4px;
-    margin-right: 20px;
-    white-space: nowrap; /* バッジ内の文字の改行を防ぐ */
-    text-align: center;
-    min-width: 90px; /* バッジの横幅を揃えて綺麗に見せる（お好みで調整） */
+    margin-right: 16px;
+    color: #ffffff; /* バッジの文字色は白で固定 */
 }
 
-/* ▼ バッジの色バリエーション ▼ */
-.cs-badge-important {
-    background-color: #fef2f2; /* 薄い赤 */
-    color: #ef4444;            /* 濃い赤 */
-    border: 1px solid #fca5a5;
+.cs-accent-date {
+    font-size: 0.9rem;
+    color: #64748b;
 }
 
-.cs-badge-update {
-    background-color: #eff6ff; /* 薄い青 */
-    color: #3b82f6;            /* 濃い青 */
-    border: 1px solid #93c5fd;
-}
-
-.cs-badge-release {
-    background-color: #f0fdf4; /* 薄い緑 */
-    color: #22c55e;            /* 濃い緑 */
-    border: 1px solid #86efac;
-}
-
-/* =========================================
-   タイトル（長文は2行目以降に綺麗に回り込む）
-========================================= */
-.cs-news-title {
-    font-size: 0.95rem;
-    font-weight: 700;
+.cs-accent-title {
+    font-size: 1.1rem;
+    font-weight: 800;
     color: #1e293b;
+    margin-bottom: 8px;
     line-height: 1.5;
 }
 
+.cs-accent-desc {
+    font-size: 0.95rem;
+    color: #475569;
+    margin: 0;
+    line-height: 1.6;
+}
+
 /* =========================================
-   レスポンシブ対応（スマホ表示時）
+   カラーバリエーションごとの色設定
+========================================= */
+/* 1. 赤（重要） */
+.cs-color-red {
+    background-color: #fef2f2;
+    border-left-color: #ef4444; /* ここで左側の太線を赤色に塗る */
+}
+.cs-color-red .cs-accent-badge {
+    background-color: #ef4444;
+}
+.cs-color-red:hover {
+    background-color: #fee2e2; /* ホバー時に少し背景を濃くする */
+}
+
+/* 2. 青（お知らせ） */
+.cs-color-blue {
+    background-color: #eff6ff;
+    border-left-color: #3b82f6;
+}
+.cs-color-blue .cs-accent-badge {
+    background-color: #3b82f6;
+}
+.cs-color-blue:hover {
+    background-color: #dbeafe;
+}
+
+/* 3. 緑（更新） */
+.cs-color-green {
+    background-color: #f0fdf4;
+    border-left-color: #10b981;
+}
+.cs-color-green .cs-accent-badge {
+    background-color: #10b981;
+}
+.cs-color-green:hover {
+    background-color: #dcfce7;
+}
+
+/* =========================================
+   レスポンシブ対応
 ========================================= */
 @media screen and (max-width: 640px) {
-    .cs-news-link {
-        flex-wrap: wrap; /* 子要素の折り返しを許可する */
-        align-items: flex-start;
-        padding: 16px;
+    .cs-accent-box {
+        padding: 20px 20px 20px 24px;
+        border-left-width: 4px; /* スマホでは左の線を少し細くして圧迫感を減らす */
     }
-    
-    /* 日付とバッジを上部に並べて配置 */
-    .cs-news-date {
-        margin-bottom: 8px;
+    .cs-accent-title {
+        font-size: 1rem;
     }
-    
-    .cs-news-badge {
-        margin-bottom: 8px;
-        margin-right: 0; /* タイトルを次の行へ落とすために右余白を消去 */
-    }
-    
-    /* タイトルを100%幅にすることで、自動的に次の行へ改行（回り込み）させる */
-    .cs-news-title {
-        width: 100%;
+    .cs-accent-desc {
         font-size: 0.9rem;
     }
 }
