@@ -12,120 +12,113 @@
   /* ニュースエリア全体の枠組み設定 */
   .simple-news-box {
     width: 100%;
-    max-width: 700px; /* 全体の横幅 */
+    max-width: 700px;
     margin: 40px auto;
     padding: 15px;
     box-sizing: border-box;
-    border: 1px solid #ccc; /* 外枠の線 */
+    border: 1px solid #ccc;
     background-color: #fff;
     font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
   }
 
   /* 縦に伸びないためのスクロール設定 */
   .simple-news-scroll {
-    max-height: 200px; /* ニュースエリアの最大の高さ */
-    overflow-y: auto;  /* 縦方向にスクロールバーを自動表示 */
+    max-height: 200px;
+    overflow-y: auto;
     padding-right: 5px;
   }
 
-  /* 各ニュースの1行設定（リンク） */
+  /* 各ニュースの1行設定 */
   .simple-news-item {
     display: flex;
     align-items: center;
     padding: 10px 5px;
-    border-bottom: 1px solid #eee; /* 行と行の間の区切り線 */
-    text-decoration: none; /* リンクの下線を消す */
-    color: #333; /* 文字色 */
+    border-bottom: 1px solid #eee;
+    text-decoration: none;
+    color: #333;
     font-size: 0.9rem;
-    gap: 15px; /* 要素同士の間隔 */
+    gap: 15px;
     transition: background-color 0.2s;
   }
 
   .simple-news-item:last-child {
-    border-bottom: none; /* 最後の行の線は消す */
+    border-bottom: none;
   }
 
-  /* マウスを乗せたときの効果 */
   .simple-news-item:hover {
-    background-color: #f5f5f5; /* 背景を薄いグレーに */
-    color: #0056b3; /* 文字色を少し青っぽく（お好みで消してもOK） */
+    background-color: #f5f5f5;
   }
 
   /* 日付のスタイル */
   .simple-news-date {
     color: #666;
-    white-space: nowrap; /* 改行させない */
+    white-space: nowrap;
   }
 
-  /* 角丸の四角ラベルのスタイル */
+  /* 💡ベースとなるラベルのスタイル（共通） */
   .simple-news-label {
-    background-color: #ff0000; /* ラベルの赤色 */
     color: #fff;
     font-size: 0.75rem;
     font-weight: bold;
     padding: 3px 8px;
-    border-radius: 4px; /* 四角の角をほどよく丸める設定 */
-    white-space: nowrap; /* 改行させない */
+    border-radius: 4px;
+    white-space: nowrap;
+    background-color: #718096; /* 何も指定しない時はグレー */
   }
 
-  /* タイトルのスタイル（長すぎる文字を自動で「...」にする） */
+  /* 💡【追加】ラベルの種類ごとの色設定 */
+  .simple-news-label.red { background-color: #ff0000; }    /* 赤 */
+  .simple-news-label.blue { background-color: #007bff; }   /* 青 */
+  .simple-news-label.green { background-color: #28a745; }  /* 緑 */
+  .simple-news-label.orange { background-color: #fd7e14; } /* オレンジ */
+
+  /* タイトルのスタイル */
   .simple-news-title {
     margin: 0;
-    white-space: nowrap;     /* 長すぎるテキストを1行に収める */
-    overflow: hidden;        /* はみ出た部分を隠す */
-    text-overflow: ellipsis; /* はみ出た文字の末尾を「...」にする */
-    flex-grow: 1;            /* 横幅いっぱいに広げる */
-    text-align: left;        /* 文字を左詰めに */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-grow: 1;
+    text-align: left;
   }
 
-  /* スマホ対応（画面が狭いとき） */
   @media (max-width: 500px) {
-    .simple-news-item {
-      gap: 10px;
-      font-size: 0.8rem;
-    }
-    .simple-news-label {
-      padding: 2px 6px;
-    }
+    .simple-news-item { gap: 10px; font-size: 0.8rem; }
+    .simple-news-label { padding: 2px 6px; }
   }
 </style>
 
 <div class="simple-news-box">
   <div class="simple-news-scroll">
     
-    <!-- ニュース1行目：リンク先URLを href="〜" に書き換えてください -->
+    <!-- 💡使い方の例： class の中に「red」や「blue」を書き足します -->
+
+    <!-- 赤色ラベルのニュース -->
     <a href="news01.html" class="simple-news-item">
       <time class="simple-news-date">2026.09.01</time>
-      <span class="simple-news-label">ラベル</span>
-      <p class="simple-news-title">ホームページをリニューアルしました。クリックすると詳細ページへ飛びます。</p>
+      <span class="simple-news-label red">重要</span>
+      <p class="simple-news-title">システムメンテナンスに伴うサービス一時停止のお知らせ</p>
     </a>
 
-    <!-- ニュース2行目：新しいタブで開きたい場合は target="_blank" を付けます -->
-    <a href="https://example.com" class="simple-news-item" target="_blank">
+    <!-- 青色ラベルのニュース -->
+    <a href="news02.html" class="simple-news-item">
       <time class="simple-news-date">2026.08.25</time>
-      <span class="simple-news-label">ラベル</span>
-      <p class="simple-news-title">外部の参考サイトを新しいタブで開くテスト用ニュース</p>
+      <span class="simple-news-label blue">告知</span>
+      <p class="simple-news-title">秋のイベントスケジュールを公開しました！</p>
     </a>
 
-    <!-- ニュース3行目 -->
+    <!-- 緑色ラベルのニュース -->
     <a href="news03.html" class="simple-news-item">
       <time class="simple-news-date">2026.08.15</time>
-      <span class="simple-news-label">ラベル</span>
-      <p class="simple-news-title">ここには新着情報のタイトルが入ります。長くなっても「...」で自動的に省略されます。</p>
+      <span class="simple-news-label green">更新</span>
+      <p class="simple-news-title">ホームページの一部デザインをリニューアルしました。</p>
     </a>
 
-    <!-- ニュース4行目 -->
+    <!-- オレンジ色ラベルのニュース -->
     <a href="news04.html" class="simple-news-item">
       <time class="simple-news-date">2026.08.01</time>
-      <span class="simple-news-label">ラベル</span>
-      <p class="simple-news-title">テスト用の新着情報テキストNO.4</p>
-    </a>
-
-    <!-- ニュース5行目（これ以降は枠内でスクロールして表示されます） -->
-    <a href="news05.html" class="simple-news-item">
-      <time class="simple-news-date">2026.07.20</time>
-      <span class="simple-news-label">ラベル</span>
-      <p class="simple-news-title">テスト用の新着情報テキストNO.5（スクロールすると見えます）</p>
+      <span class="simple-news-label orange">イベント</span>
+      <p class="simple-news-title">限定アイテムの配布キャンペーンを開始します。</p>
     </a>
 
   </div>
