@@ -129,6 +129,60 @@
   /* スピン（ホバー時に回転） */
   .simple-news-item:hover .simple-news-label.spin { transform: rotateY(360deg); }
   .simple-news-label.spin { background-color: #e67e22; }
+  
+  /* 🫨 1. 文字が小刻みにグラグラ揺れる（地震・パニック風） */
+  .simple-news-item:hover .text-shake {
+    display: inline-block;
+    animation: shakeAnimation 0.1s linear infinite;
+  }
+  @keyframes shakeAnimation {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    10% { transform: translate(-1px, -1px) rotate(-1deg); }
+    20% { transform: translate(-2px, 0px) rotate(1deg); }
+    30% { transform: translate(1px, 2px) rotate(0deg); }
+    40% { transform: translate(1px, -1px) rotate(1deg); }
+    50% { transform: translate(-1px, 1px) rotate(-1deg); }
+    60% { transform: translate(-2px, 1px) rotate(0deg); }
+    70% { transform: translate(2px, 1px) rotate(-1deg); }
+    80% { transform: translate(-1px, -1px) rotate(1deg); }
+    90% { transform: translate(1px, 1px) rotate(0deg); }
+    100% { transform: translate(1px, -1px) rotate(-1deg); }
+  }
+
+  /* ⚡ 2. 文字色がギラギラと虹色に変化（文字版ゲーミング） */
+  .text-rainbow {
+    background: linear-gradient(to right, #ff0000, #ff7f00, #ffff00, #00ff00, #00ffff, #0000ff, #8b00ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 400% auto;
+    animation: textRainbowAnim 3s linear infinite;
+    font-weight: bold;
+  }
+  @keyframes textRainbowAnim {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+  }
+
+  /* 🎯 3. マウスを乗せると文字が「びよーーん」と巨大化する */
+  .simple-news-item:hover .text-big {
+    display: inline-block;
+    transform: scale(1.15); /* 1.15倍の大きさになります */
+    color: #e74c3c;
+    transition: transform 0.2s ease;
+  }
+  .text-big {
+    transition: transform 0.2s ease;
+  }
+
+  /* 😶‍🌫️ 4. 文字がモザイク・砂嵐のようにボヤける（ホラー・バグ風） */
+  .text-glitch {
+    color: #333;
+    animation: glitchBlur 2s steps(2) infinite;
+  }
+  @keyframes glitchBlur {
+    0%, 100% { filter: blur(0px); }
+    50% { filter: blur(2px); color: #ff0055; text-shadow: 2px 2px #00ffff; }
+  }
 
   /* タイトルのスタイル（長すぎる文字を自動で「...」にする） */
   .simple-news-title {
