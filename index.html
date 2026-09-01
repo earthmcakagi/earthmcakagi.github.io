@@ -7,38 +7,111 @@
   <img src="akagilogo.png" alt="akagilogo" style="display: block; margin: 0 auto; width: 500px; max-width: 100%; height: auto;">
 </div>
 <!-- <img src="mahiro&mihari.png" alt="img" style="display: block; margin: 0 auto; width: 100px; max-width: 100%; height: auto;"> -->
-<div class="cs-accent-wrapper">
+<style>
+  .panel-news-container {
+    width: 100%;
+    max-width: 800px; /* ニュース全体の横幅 */
+    margin: 40px auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+    text-align: left; /* 文字を左詰めに固定 */
+    font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+  }
 
-    <!-- ▼ 1. 重要（赤）：重大な変更や警告 ▼ -->
-    <a href="#" class="cs-accent-box cs-color-red">
-        <div class="cs-accent-header">
-            <span class="cs-accent-badge">重要</span>
-            <time class="cs-accent-date" datetime="2026-03-31">2026.03.31</time>
-        </div>
-        <div class="cs-accent-title">サーバー移行と過去のPython関連データの完全削除について</div>
-        <p class="cs-accent-desc">約8年間運営していたPythonプログラミングサイトのデータをサーバーから完全に削除し、新環境へ移行いたしました。</p>
-    </a>
+  .panel-news-item {
+    margin-bottom: 24px;
+    padding: 24px;
+    border-radius: 4px;
+    border-left: 5px solid #ccc;
+    box-sizing: border-box;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
 
-    <!-- ▼ 2. お知らせ（青）：ポジティブな報告や通常のアナウンス ▼ -->
-    <a href="#" class="cs-accent-box cs-color-blue">
-        <div class="cs-accent-header">
-            <span class="cs-accent-badge">お知らせ</span>
-            <time class="cs-accent-date" datetime="2026-04-30">2026.04.30</time>
-        </div>
-        <div class="cs-accent-title">公開記事が70本を突破＆月間1,500PVを達成しました</div>
-        <p class="cs-accent-desc">HTMLとCSSを中心としたWebデザインサイトとしてリニューアル後、順調にトラフィックを伸ばし、1ヶ月で月間1,500PVに到達しました。</p>
-    </a>
+  /* タグと日付の並び */
+  .panel-news-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
 
-    <!-- ▼ 3. 更新（緑）：新規記事やコンテンツの追加 ▼ -->
-    <a href="#" class="cs-accent-box cs-color-green">
-        <div class="cs-accent-header">
-            <span class="cs-accent-badge">更新</span>
-            <time class="cs-accent-date" datetime="2026-07-16">2026.07.16</time>
-        </div>
-        <div class="cs-accent-title">TypeScriptのEnumとAPI設計に関する技術解説を公開</div>
-        <p class="cs-accent-desc">フロントエンド開発に役立つTypeScriptの機能や、CSSの最新レイアウトテクニックについて長編記事を追加しました。</p>
-    </a>
+  .panel-news-tag {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
 
+  .panel-news-date {
+    font-size: 0.85rem;
+    color: #666;
+  }
+
+  /* タイトルと説明文 */
+  .panel-news-title {
+    font-size: 1.15rem;
+    margin: 0 0 10px 0;
+    font-weight: bold;
+    line-height: 1.4;
+    color: #2d3748;
+  }
+
+  .panel-news-desc {
+    font-size: 0.9rem;
+    margin: 0;
+    color: #4a5568;
+    line-height: 1.6;
+  }
+
+  /* 各タイプの色設定（背景色と左の太線） */
+  .panel-news-item.important { background-color: #fff5f5; border-left-color: #f56565; }
+  .panel-news-item.important .panel-news-tag { background-color: #f56565; }
+
+  .panel-news-item.info { background-color: #ebf8ff; border-left-color: #4299e1; }
+  .panel-news-item.info .panel-news-tag { background-color: #4299e1; }
+
+  .panel-news-item.update { background-color: #f0fff4; border-left-color: #48bb78; }
+  .panel-news-item.update .panel-news-tag { background-color: #48bb78; }
+
+  /* スマホ対応（画面が狭いとき） */
+  @media (max-width: 600px) {
+    .panel-news-item { padding: 16px; }
+    .panel-news-title { font-size: 1rem; }
+  }
+</style>
+
+<div class="panel-news-container">
+  <!-- 記事1（重要：赤） -->
+  <div class="panel-news-item important">
+    <div class="panel-news-meta">
+      <span class="panel-news-tag">重要</span>
+      <time class="panel-news-date">2026.03.31</time>
+    </div>
+    <h3 class="panel-news-title">サーバー移行と過去のPython関連データの完全削除について</h3>
+    <p class="panel-news-desc">約3年間運営していたPythonプログラミングサイトのデータをサーバーから完全に削除し、新環境へ移行いたしました。</p>
+  </div>
+
+  <!-- 記事2（お知らせ：青） -->
+  <div class="panel-news-item info">
+    <div class="panel-news-meta">
+      <span class="panel-news-tag">お知らせ</span>
+      <time class="panel-news-date">2026.04.30</time>
+    </div>
+    <h3 class="panel-news-title">公開記事が70本を突破＆月間1,500PVを達成しました</h3>
+    <p class="panel-news-desc">HTMLとCSSを中心としたWebデザインサイトとしてリニューアル後、順調にトラフィックを伸ばし、1ヶ月で月間1,500PVに到達しました。</p>
+  </div>
+
+  <!-- 記事3（更新：緑） -->
+  <div class="panel-news-item update">
+    <div class="panel-news-meta">
+      <span class="panel-news-tag">更新</span>
+      <time class="panel-news-date">2026.07.16</time>
+    </div>
+    <h3 class="panel-news-title">TypeScriptのEnumとAPI設計に関する技術解説を公開</h3>
+    <p class="panel-news-desc">フロントエンド開発に役立つTypeScriptの機能や、CSSの最新レイアウトテクニックについて関連記事を追加しました。</p>
+  </div>
 </div>
 <h2>Links</h2>
 <a href="https://earthmcakagi.github.io/link/" style="display:inline-block; padding:10px 20px; background-color:#007bff; color:white; text-decoration:none; border-radius:5px;">Links</a>
