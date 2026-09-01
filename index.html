@@ -21,31 +21,34 @@
     font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
   }
 
-  /* 縦に伸びないためのスクロール設定（ここがポイント） */
+  /* 縦に伸びないためのスクロール設定 */
   .simple-news-scroll {
-    max-height: 200px; /* 💡ニュースエリアの最大の高さ（これ以上増えるとスクロールします） */
-    overflow-y: auto;  /* 💡縦方向にスクロールバーを自動表示 */
+    max-height: 200px; /* ニュースエリアの最大の高さ */
+    overflow-y: auto;  /* 縦方向にスクロールバーを自動表示 */
     padding-right: 5px;
   }
 
-  /* 各ニュースの1行設定 */
+  /* 各ニュースの1行設定（リンク） */
   .simple-news-item {
     display: flex;
     align-items: center;
     padding: 10px 5px;
     border-bottom: 1px solid #eee; /* 行と行の間の区切り線 */
-    text-decoration: none;
-    color: #333;
+    text-decoration: none; /* リンクの下線を消す */
+    color: #333; /* 文字色 */
     font-size: 0.9rem;
     gap: 15px; /* 要素同士の間隔 */
+    transition: background-color 0.2s;
   }
 
   .simple-news-item:last-child {
     border-bottom: none; /* 最後の行の線は消す */
   }
 
+  /* マウスを乗せたときの効果 */
   .simple-news-item:hover {
-    background-color: #f9f9f9; /* マウスを乗せたときに背景を薄くグレーに */
+    background-color: #f5f5f5; /* 背景を薄いグレーに */
+    color: #0056b3; /* 文字色を少し青っぽく（お好みで消してもOK） */
   }
 
   /* 日付のスタイル */
@@ -54,25 +57,25 @@
     white-space: nowrap; /* 改行させない */
   }
 
-  /* 赤いラベルのスタイル */
+  /* 角丸の四角ラベルのスタイル */
   .simple-news-label {
-    background-color: #ff0000; /* 赤色 */
+    background-color: #ff0000; /* ラベルの赤色 */
     color: #fff;
     font-size: 0.75rem;
     font-weight: bold;
-    padding: 3px 12px;
-    border-radius: 20px; /* 丸みのあるカプセル型 */
+    padding: 3px 8px;
+    border-radius: 4px; /* 四角の角をほどよく丸める設定 */
     white-space: nowrap; /* 改行させない */
   }
 
-  /* タイトルのスタイル */
+  /* タイトルのスタイル（長すぎる文字を自動で「...」にする） */
   .simple-news-title {
     margin: 0;
-    white-space: nowrap;     /* 💡長すぎるテキストを1行に収める */
-    overflow: hidden;        /* 💡はみ出た部分を隠す */
-    text-overflow: ellipsis; /* 💡はみ出た文字の末尾を「...」にする */
+    white-space: nowrap;     /* 長すぎるテキストを1行に収める */
+    overflow: hidden;        /* はみ出た部分を隠す */
+    text-overflow: ellipsis; /* はみ出た文字の末尾を「...」にする */
     flex-grow: 1;            /* 横幅いっぱいに広げる */
-    text-align: left;
+    text-align: left;        /* 文字を左詰めに */
   }
 
   /* スマホ対応（画面が狭いとき） */
@@ -82,7 +85,7 @@
       font-size: 0.8rem;
     }
     .simple-news-label {
-      padding: 2px 8px;
+      padding: 2px 6px;
     }
   }
 </style>
@@ -90,39 +93,39 @@
 <div class="simple-news-box">
   <div class="simple-news-scroll">
     
-    <!-- ニュース1行目 -->
-    <a href="#" class="simple-news-item">
-      <time class="simple-news-date">2026.9.1</time>
+    <!-- ニュース1行目：リンク先URLを href="〜" に書き換えてください -->
+    <a href="news01.html" class="simple-news-item">
+      <time class="simple-news-date">2026.09.01</time>
       <span class="simple-news-label">ラベル</span>
-      <p class="simple-news-title">ニュースニュースニュースニュースニュースニュースニュースニュース</p>
+      <p class="simple-news-title">ホームページをリニューアルしました。クリックすると詳細ページへ飛びます。</p>
     </a>
 
-    <!-- ニュース2行目 -->
-    <a href="#" class="simple-news-item">
-      <time class="simple-news-date">2026.9.1</time>
+    <!-- ニュース2行目：新しいタブで開きたい場合は target="_blank" を付けます -->
+    <a href="https://example.com" class="simple-news-item" target="_blank">
+      <time class="simple-news-date">2026.08.25</time>
       <span class="simple-news-label">ラベル</span>
-      <p class="simple-news-title">短めのニューステキスト</p>
+      <p class="simple-news-title">外部の参考サイトを新しいタブで開くテスト用ニュース</p>
     </a>
 
     <!-- ニュース3行目 -->
-    <a href="#" class="simple-news-item">
-      <time class="simple-news-date">2026.9.1</time>
+    <a href="news03.html" class="simple-news-item">
+      <time class="simple-news-date">2026.08.15</time>
       <span class="simple-news-label">ラベル</span>
       <p class="simple-news-title">ここには新着情報のタイトルが入ります。長くなっても「...」で自動的に省略されます。</p>
     </a>
 
     <!-- ニュース4行目 -->
-    <a href="#" class="simple-news-item">
-      <time class="simple-news-date">2026.9.1</time>
+    <a href="news04.html" class="simple-news-item">
+      <time class="simple-news-date">2026.08.01</time>
       <span class="simple-news-label">ラベル</span>
       <p class="simple-news-title">テスト用の新着情報テキストNO.4</p>
     </a>
 
-    <!-- ニュース5行目（スクロールを確認するためのダミー） -->
-    <a href="#" class="simple-news-item">
-      <time class="simple-news-date">2026.8.31</time>
+    <!-- ニュース5行目（これ以降は枠内でスクロールして表示されます） -->
+    <a href="news05.html" class="simple-news-item">
+      <time class="simple-news-date">2026.07.20</time>
       <span class="simple-news-label">ラベル</span>
-      <p class="simple-news-title">テスト用の新着情報テキストNO.5（ここからスクロールで表示されます）</p>
+      <p class="simple-news-title">テスト用の新着情報テキストNO.5（スクロールすると見えます）</p>
     </a>
 
   </div>
