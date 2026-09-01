@@ -1,22 +1,117 @@
-dl{
- width:500px;
-}
-dt{
- border-bottom:1px solid #ccc;
-  float:left;
-  padding:10px 5px;
-}
-dd{
- border-bottom:1px solid #ccc;
-  margin-left:100px;
-  padding:10px 5px;
-}
-a{
-  background-color:red;
-  border-radius:5px;
-  color:#fff;
-  margin:0 20px;
-  padding:5px 15px;
-  text-decoration:none;
+/* =========================================
+   共通の枠組み・リストの初期化
+========================================= */
+.cs-news-wrapper {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto 2em;
 }
 
+.cs-news-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-top: 1px solid #e2e8f0;
+}
+
+.cs-news-item {
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* =========================================
+   リンク要素（横並びレイアウト）
+========================================= */
+.cs-news-link {
+    display: flex;
+    align-items: center; /* 縦方向の中央揃え */
+    padding: 16px 12px;
+    text-decoration: none !important;
+    color: #334155;
+    transition: background-color 0.3s ease;
+}
+
+.cs-news-link:hover {
+    background-color: #f8fafc;
+}
+
+/* =========================================
+   日付
+========================================= */
+.cs-news-date {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin-right: 20px;
+    white-space: nowrap; /* 画面が狭くなっても日付を改行させない */
+}
+
+/* =========================================
+   バッジの基本スタイル
+========================================= */
+.cs-news-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
+    padding: 6px 10px;
+    border-radius: 4px;
+    margin-right: 20px;
+    white-space: nowrap; /* バッジ内の文字の改行を防ぐ */
+    text-align: center;
+    min-width: 90px; /* バッジの横幅を揃えて綺麗に見せる（お好みで調整） */
+}
+
+/* ▼ バッジの色バリエーション ▼ */
+.cs-badge-important {
+    background-color: #fef2f2; /* 薄い赤 */
+    color: #ef4444;            /* 濃い赤 */
+    border: 1px solid #fca5a5;
+}
+
+.cs-badge-update {
+    background-color: #eff6ff; /* 薄い青 */
+    color: #3b82f6;            /* 濃い青 */
+    border: 1px solid #93c5fd;
+}
+
+.cs-badge-release {
+    background-color: #f0fdf4; /* 薄い緑 */
+    color: #22c55e;            /* 濃い緑 */
+    border: 1px solid #86efac;
+}
+
+/* =========================================
+   タイトル（長文は2行目以降に綺麗に回り込む）
+========================================= */
+.cs-news-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.5;
+}
+
+/* =========================================
+   レスポンシブ対応（スマホ表示時）
+========================================= */
+@media screen and (max-width: 640px) {
+    .cs-news-link {
+        flex-wrap: wrap; /* 子要素の折り返しを許可する */
+        align-items: flex-start;
+        padding: 16px;
+    }
+    
+    /* 日付とバッジを上部に並べて配置 */
+    .cs-news-date {
+        margin-bottom: 8px;
+    }
+    
+    .cs-news-badge {
+        margin-bottom: 8px;
+        margin-right: 0; /* タイトルを次の行へ落とすために右余白を消去 */
+    }
+    
+    /* タイトルを100%幅にすることで、自動的に次の行へ改行（回り込み）させる */
+    .cs-news-title {
+        width: 100%;
+        font-size: 0.9rem;
+    }
+}
