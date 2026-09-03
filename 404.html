@@ -4,3 +4,119 @@
   <img src="../media/image/topimg.png" alt="topimg" style="display: block; margin: 0 auto; width: 300px; max-width: 100%; height: auto;">
 </a>
 <h1 style="text-align: center;">404NotFound</h1>
+<div id="status-panel" style="display: flex; justify-content: space-between; width: 490px; margin: 0 auto 15px; font-size: 1.1rem; font-weight: bold; background: #1e1e1e; padding: 10px 20px; border-radius: 6px; box-sizing: border-box; font-family: sans-serif; color: #fff; user-select: none;">
+    <div id="pickaxe-display" style="color: #a1887f;">🪓 木のツルハシ</div>
+    <div id="score-display" style="color: #ffeb3b;">鉱石: 0</div>
+</div>
+
+<div id="grid" style="display: grid; grid-template-columns: repeat(15, 32px); grid-template-rows: repeat(7, 32px); gap: 2px; background: #111; padding: 10px; border-radius: 8px; border: 3px solid #000; width: fit-content; margin: 0 auto; user-select: none; cursor: url('data:image/svg+xml;utf8,<svg xmlns=\'http://w3.org\' width=\'32\' height=\'32\' viewBox=\'0 0 32 32\'><path d=\'M28 4l-4-4-14 14 2 2 2-2 14-14z\' fill=\'%238b5a2b\'/><path d=\'M24 0l8 8-4 4-8-8 4-4z\' fill=\'%23cccccc\'/></svg>') 16 16, pointer;"></div>
+
+<div style="margin-top: 15px; text-align: center;">
+    <button id="reset-btn" style="background: #3e3e42; color: white; border: 1px solid #555; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold;">404を再生成</button>
+</div>
+
+<style>
+    .cell { width: 32px; height: 32px; position: relative; box-sizing: border-box; }
+    .stone { background-color: #737373; border: 2px solid #595959; }
+    .iron { background-color: #d8af93; border: 2px solid #bfa08a; }
+    .gold { background-color: #fcee4b; border: 2px solid #decd1b; }
+    .diamond { background-color: #4dedf0; border: 2px solid #2cbabe; }
+    .empty { background-color: #111; }
+    .crack { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+    .crack-1 { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://w3.org" width="32" height="32"><path d="M0 16h8v4h4v-8h8v8h4v-4h8" stroke="rgba(0,0,0,0.6)" stroke-width="2" fill="none"/></svg>'); }
+    .crack-2 { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://w3.org" width="32" height="32"><path d="M0 16h8v4h4v-8h8v8h4v-4h8 M8 0v16 M20 12v20 M12 4h12" stroke="rgba(0,0,0,0.7)" stroke-width="2" fill="none"/></svg>'); }
+    .crack-3 { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://w3.org" width="32" height="32"><path d="M0 16h8v4h4v-8h8v8h4v-4h8 M8 0v16 M20 12v20 M12 4h12 M0 4l32 24 M0 28l32-24" stroke="rgba(0,0,0,0.8)" stroke-width="2" fill="none"/></svg>'); }
+</style>
+
+<script>
+    const mapLayout = [,
+ ,
+ ,
+ ,
+ ,
+ ,
+        [0,0,0,4,0,4,4,4,4,4,0,0,0,0,4]
+    ];
+
+    const typeClasses = { 1: 'stone', 2: 'iron', 3: 'gold', 4: 'diamond' };
+    const typeDurability = { 1: 10, 2: 25, 3: 40, 4: 70 };
+
+    let currentPickaxe = { name: '木のツルハシ', power: 1, prefix: '🪓', color: '#a1887f' };
+    let score = 0;
+    let gridData = [];
+    let miningInterval = null;
+    let currentMiningTarget = null;
+
+    const gridElement = document.getElementById('grid');
+    const pickaxeDisplay = document.getElementById('pickaxe-display');
+    const scoreDisplay = document.getElementById('score-display');
+    const resetBtn = document.getElementById('reset-btn');
+
+    function updatePickaxe() {
+        if (score >= 120) currentPickaxe = { name: 'ネザライトのツルハシ', power: 8, prefix: '🔥', color: '#d1c4e9' };
+        else if (score >= 60) currentPickaxe = { name: 'ダイヤモンドのツルハシ', power: 5, prefix: '💎', color: '#4dedf0' };
+        else if (score >= 25) currentPickaxe = { name: '鉄のツルハシ', power: 3, prefix: '⚔️', color: '#e0e0e0' };
+        else if (score >= 8) currentPickaxe = { name: '石のツルハシ', power: 2, prefix: '🗿', color: '#b0bec5' };
+        else currentPickaxe = { name: '木のツルハシ', power: 1, prefix: '🪓', color: '#a1887f' };
+        
+        pickaxeDisplay.style.color = currentPickaxe.color;
+        pickaxeDisplay.textContent = `${currentPickaxe.prefix} ${currentPickaxe.name}`;
+    }
+
+    function initGame() {
+        gridElement.innerHTML = '';
+        gridData = [];
+        for (let r = 0; r < 7; r++) {
+            gridData[r] = [];
+            for (let c = 0; c < 15; c++) {
+                const type = mapLayout[r][c];
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                if (type !== 0) {
+                    cell.classList.add(typeClasses[type]);
+                    gridData[r][c] = { type, maxHp: typeDurability[type], hp: typeDurability[type], element: cell };
+                    cell.addEventListener('mousedown', (e) => { if (e.button === 0) startMining(r, c); });
+                } else {
+                    cell.classList.add('empty');
+                    gridData[r][c] = null;
+                }
+                gridElement.appendChild(cell);
+            }
+        }
+    }
+
+    function startMining(r, c) {
+        clearInterval(miningInterval);
+        currentMiningTarget = gridData[r][c];
+        miningInterval = setInterval(() => {
+            if (!currentMiningTarget || currentMiningTarget.hp <= 0) return stopMining();
+            currentMiningTarget.hp -= currentPickaxe.power;
+            
+            const existingCrack = currentMiningTarget.element.querySelector('.crack');
+            if (existingCrack) existingCrack.remove();
+
+            const damagePercent = (currentMiningTarget.maxHp - currentMiningTarget.hp) / currentMiningTarget.maxHp;
+            let crackClass = damagePercent >= 0.75 ? 'crack-3' : damagePercent >= 0.5 ? 'crack-2' : damagePercent >= 0.25 ? 'crack-1' : '';
+            if (crackClass) {
+                const crackDiv = document.createElement('div');
+                crackDiv.classList.add('crack', crackClass);
+                currentMiningTarget.element.appendChild(crackDiv);
+            }
+
+            if (currentMiningTarget.hp <= 0) {
+                currentMiningTarget.element.className = 'cell empty';
+                currentMiningTarget.element.innerHTML = '';
+                score += currentMiningTarget.type;
+                scoreDisplay.textContent = `鉱石: ${score}`;
+                updatePickaxe();
+                stopMining();
+            }
+        }, 80);
+    }
+
+    function stopMining() { clearInterval(miningInterval); currentMiningTarget = null; }
+    window.addEventListener('mouseup', stopMining);
+    gridElement.addEventListener('mouseleave', stopMining);
+    resetBtn.addEventListener('click', () => { stopMining(); initGame(); });
+    initGame();
+</script>
