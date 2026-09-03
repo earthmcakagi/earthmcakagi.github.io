@@ -3,83 +3,129 @@
 <a href="https://earthmcakagi.github.io">
   <img src="../media/image/topimg.png" alt="topimg" style="display: block; margin: 0 auto; width: 300px; max-width: 100%; height: auto;">
 </a>
-<div id="game-404" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; font-family: sans-serif; user-select: none; padding: 20px;">
-    <!-- 404のドットを並べるエリア -->
-    <div id="block-container" style="display: grid; grid-template-columns: repeat(15, 24px); grid-template-rows: repeat(7, 24px); gap: 3px;"></div>
+<div id="game-404" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 25px; font-family: 'Courier New', monospace; user-select: none; -webkit-user-select: none; padding: 30px;">
+    <!-- 隙間（gap: 0px）で完全に繋がった巨大な404の壁 -->
+    <div id="block-container" style="display: grid; grid-template-columns: repeat(15, 32px); grid-template-rows: repeat(5, 32px); gap: 0px; position: relative;"></div>
     
-    <!-- リセットボタン -->
-    <button id="remake-btn" style="background: #222; color: #aaa; border: 1px solid #444; padding: 6px 16px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">404を再生成</button>
+    <!-- カクカクしたスタイリッシュな再生成ボタン -->
+    <button id="remake-btn" style="background: #111; color: #fff; border: 2px solid #fff; padding: 10px 24px; border-radius: 0px; cursor: pointer; font-size: 0.9rem; font-weight: bold; font-family: inherit; transition: all 0.1s; letter-spacing: 1px;">REGENERATE 404</button>
 </div>
 
 <style>
-    .dot-block { width: 24px; height: 24px; background-color: #333; border-radius: 2px; position: relative; cursor: pointer; }
-    .dot-block:hover { background-color: #444; }
-    .dot-empty { width: 24px; height: 24px; }
-    .block-crack { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
-    /* ひび割れ線のSVG */
-    .c-1 { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://w3.org" width="24" height="24"><path d="M0 12h6v4h4v-8h6" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" fill="none"/></svg>'); }
-    .c-2 { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://w3.org" width="24" height="24"><path d="M0 12h6v4h4v-8h6 M6 0v12 M12 4h8l-4 8" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"/></svg>'); }
-    .c-3 { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://w3.org" width="24" height="24"><path d="M0 12h6v4h4v-8h6 M6 0v12 M12 4h8l-4 8 M0 2l24 20 M0 22l24-20" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" fill="none"/></svg>'); }
+    /* 通常時・採掘時のツルハシカーソル設定 */
+    #game-404 {
+        cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://w3.org" width="32" height="32" viewBox="0 0 32 32"><path d="M28 4l-4-4-14 14 2 2 2-2 14-14z" fill="%238b5a2b" shape-rendering="crispEdges"/><path d="M24 0l8 8-4 4-8-8 4-4z" fill="%23aaaaaa" shape-rendering="crispEdges"/></svg>') 4 28, pointer;
+    }
+    
+    /* クリックした一瞬だけツルハシが傾くアニメーション */
+    #game-404.mining {
+        cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://w3.org" width="32" height="32" viewBox="0 0 32 32"><g transform="rotate(-25 4 28)"><path d="M28 4l-4-4-14 14 2 2 2-2 14-14z" fill="%238b5a2b" shape-rendering="crispEdges"/><path d="M24 0l8 8-4 4-8-8 4-4z" fill="%23aaaaaa" shape-rendering="crispEdges"/></g></svg>') 4 28, pointer;
+    }
+
+    /* 繋がった巨大な404の壁を作るためのスクエアブロック */
+    .dot-block { 
+        width: 32px; 
+        height: 32px; 
+        background-color: #3e3e3e; 
+        border-radius: 0px; 
+        position: relative; 
+        box-sizing: border-box;
+        border: 1px solid #353535;
+    }
+    .dot-block:hover { background-color: #4a4a4a; }
+    .dot-empty { width: 32px; height: 32px; box-sizing: border-box; pointer-events: none; }
+
+    /* 飛び散る破片（パーティクル）のスタイル */
+    .particle {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        background-color: #444;
+        pointer-events: none;
+        z-index: 10;
+    }
+
+    /* ボタンのホバー効果 */
+    #remake-btn:hover { background: #fff; color: #000; }
+    #remake-btn:active { transform: scale(0.95); }
 </style>
 
 <script>
     (function() {
-        // 1:ブロックあり、0:空白（15列×7行で「404」を確実に描画）
-        const layout = [,
- ,
- ,
- ,
- ,
- ,
-            [0,0,0,0,1,0,1,1,1,1,1,0,0,0,0,0,1]
-        ];
+        // 15列×5行（計75マス）の「404」配置
+        const matrix = 
+            "010100111001010" + 
+            "010100101001010" + 
+            "011100101001110" + 
+            "000100101000010" + 
+            "000100111000010"; 
 
+        const appContainer = document.getElementById('game-404');
         const container = document.getElementById('block-container');
         const resetBtn = document.getElementById('remake-btn');
-        let activeInterval = null;
 
-        function build404() {
-            container.innerHTML = '';
-            for (let r = 0; r < 7; r++) {
-                for (let c = 0; c < 15; c++) {
-                    const el = document.createElement('div');
-                    if (layout[r][c] === 1) {
-                        el.className = 'dot-block';
-                        let hp = 100;
-                        
-                        // マウスを押し込んでいる間、削る
-                        el.addEventListener('mousedown', (e) => {
-                            if (e.button !== 0) return;
-                            clearInterval(activeInterval);
-                            
-                            activeInterval = setInterval(() => {
-                                hp -= 10;
-                                // ひび割れ表示の更新
-                                const oldCrack = el.querySelector('.block-crack');
-                                if (oldCrack) oldCrack.remove();
-
-                                if (hp <= 0) {
-                                    el.className = 'dot-empty';
-                                    el.innerHTML = '';
-                                    clearInterval(activeInterval);
-                                } else {
-                                    const crack = document.createElement('div');
-                                    crack.className = 'block-crack ' + (hp <= 30 ? 'c-3' : hp <= 60 ? 'c-2' : 'c-1');
-                                    el.appendChild(crack);
-                                }
-                            }, 50); // 破壊スピード（ミリ秒）
-                        });
-                    } else {
-                        el.className = 'dot-empty';
+        // 破片（パーティクル）を飛び散らせるエフェクト関数
+        function spawnParticles(targetLeft, targetTop) {
+            for (let i = 0; i < 8; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = (targetLeft + 13) + 'px';
+                p.style.top = (targetTop + 13) + 'px';
+                
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 2 + Math.random() * 4;
+                let vx = Math.cos(angle) * speed;
+                let vy = Math.sin(angle) * speed - 2;
+                
+                container.appendChild(p);
+                
+                let lifetime = 0;
+                const pInterval = setInterval(() => {
+                    lifetime++;
+                    vy += 0.4;
+                    p.style.left = (parseFloat(p.style.left) + vx) + 'px';
+                    p.style.top = (parseFloat(p.style.top) + vy) + 'px';
+                    
+                    if (lifetime > 15) {
+                        clearInterval(pInterval);
+                        p.remove();
                     }
-                    container.appendChild(el);
-                }
+                }, 30);
             }
         }
 
-        // マウスを離したら削るのをやめる
-        window.addEventListener('mouseup', () => clearInterval(activeInterval));
-        container.addEventListener('mouseleave', () => clearInterval(activeInterval));
+        function build404() {
+            container.innerHTML = '';
+            appContainer.classList.remove('mining');
+            
+            for (let i = 0; i < matrix.length; i++) {
+                const el = document.createElement('div');
+                
+                if (matrix.charAt(i) === '1') {
+                    el.className = 'dot-block';
+                    
+                    // 【修正】mousedown（クリックした瞬間）に1発で即時破壊する処理
+                    el.addEventListener('mousedown', (e) => {
+                        if (e.button !== 0) return;
+                        if (el.className === 'dot-empty') return;
+                        
+                        // ツルハシを振る一瞬のアニメーション
+                        appContainer.classList.add('mining');
+                        setTimeout(() => {
+                            appContainer.classList.remove('mining');
+                        }, 80);
+                        
+                        // 即時に破片を散らせて消滅
+                        spawnParticles(el.offsetLeft, el.offsetTop);
+                        el.className = 'dot-empty';
+                    });
+                } else {
+                    el.className = 'dot-empty';
+                }
+                container.appendChild(el);
+            }
+        }
+        
         resetBtn.addEventListener('click', build404);
 
         build404();
