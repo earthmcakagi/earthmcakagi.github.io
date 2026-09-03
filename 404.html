@@ -3,8 +3,7 @@
 <a href="https://earthmcakagi.github.io">
   <img src="../media/image/topimg.png" alt="topimg" style="display: block; margin: 0 auto; width: 300px; max-width: 100%; height: auto;">
 </a>
-<h1 style="text-align: center;">404NotFound</h1>
-<div id="status-panel" style="display: flex; justify-content: space-between; width: 490px; margin: 0 auto 15px; font-size: 1.1rem; font-weight: bold; background: #1e1e1e; padding: 10px 20px; border-radius: 6px; box-sizing: border-box; font-family: sans-serif; color: #fff; user-select: none;">
+<h1 style="text-align: center;">404NotFound</h1><div id="status-panel" style="display: flex; justify-content: space-between; width: 490px; margin: 0 auto 15px; font-size: 1.1rem; font-weight: bold; background: #1e1e1e; padding: 10px 20px; border-radius: 6px; box-sizing: border-box; font-family: sans-serif; color: #fff; user-select: none;">
     <div id="pickaxe-display" style="color: #a1887f;">🪓 木のツルハシ</div>
     <div id="score-display" style="color: #ffeb3b;">鉱石: 0</div>
 </div>
@@ -29,13 +28,14 @@
 </style>
 
 <script>
+    // 15列×7行のマップデータ (1: 石, 2: 鉄, 3: 金, 4: ダイヤ, 0: 空白)
     const mapLayout = [,
  ,
  ,
  ,
  ,
  ,
-        [0,0,0,4,0,4,4,4,4,4,0,0,0,0,4]
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     ];
 
     const typeClasses = { 1: 'stone', 2: 'iron', 3: 'gold', 4: 'diamond' };
