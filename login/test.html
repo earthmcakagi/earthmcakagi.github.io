@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Akagi ID</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f5f5;
+      color: #222;
+    }
+
+    .container {
+      width: calc(100% - 30px);
+      max-width: 380px;
+      margin: 50px auto;
+      padding: 24px;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    }
+
+    h2 {
+      text-align: center;
+      margin-top: 0;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 11px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #007bff;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      margin-top: 8px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .primary {
+      background: #007bff;
+      color: white;
+    }
+
+    .secondary {
+      background: #e9ecef;
+      color: #222;
+    }
+
+    .danger {
+      background: #dc3545;
+      color: white;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    #message {
+      margin-top: 15px;
+      text-align: center;
+      font-weight: bold;
+      min-height: 20px;
+    }
+
+    .info {
+      text-align: center;
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 18px;
+    }
+
+    .user-info {
+      text-align: center;
+      line-height: 1.8;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- =========================
+       認証画面
+  ========================== -->
+
+  <div id="authSection" class="container">
+
+    <h2 id="title">Akagi ID ログイン</h2>
+
+    <p id="description" class="info">
+      Akagi IDでログインしてください。
+    </p>
+
+    <!-- メール -->
+    <div class="input-group">
+      <label for="email">メールアドレス</label>
+      <input
+        type="email"
+        id="email"
+        placeholder="example@gmail.com"
+        autocomplete="email"
+      >
+    </div>
+
+    <!-- パスワード -->
+    <div class="input-group" id="passwordGroup">
+      <label for="password">パスワード</label>
+      <input
+        type="password"
+        id="password"
+        placeholder="8文字以上"
+        autocomplete="current-password"
+      >
+    </div>
+
+    <!-- 確認コード -->
+    <div class="input-group hidden" id="codeGroup">
+      <label for="code">確認コード</label>
+      <input
+        type="text"
+        id="code"
+        placeholder="6桁の数字"
+        inputmode="numeric"
+        maxlength="6"
+      >
+    </div>
+
+    <button id="submitBtn" class="btn primary">
+      ログイン
+    </button>
+
+    <button id="toggleBtn" class="btn secondary">
+      新規アカウントを作成
+    </button>
+
+    <div id="message"></div>
+
+  </div>
+
+
+  <!-- =========================
+       ログイン後
+  ========================== -->
+
+  <div id="mainSection" class="container hidden">
+
+    <h2>ようこそ！</h2>
+
+    <div class="user-info">
+
+      <p>
+        Akagi IDにログインしています。
+      </p>
+
+      <p>
+        <strong id="displayName"></strong>
+      </p>
+
+      <p>
+        <small id="userEmail"></small>
+      </p>
+
+      <p>
+        権限：
+        <strong id="userRole"></strong>
+      </p>
+
+    </div>
+
+    <button id="logoutBtn" class="btn danger">
+      ログアウト
+    </button>
+
+  </div>
+
+
+<script>
+
+  // ==================================================
+  // GAS WebアプリURL
+  // ==================================================
+
+  const GAS_URL =
+    "https://script.google.com/macros/s/AKfycbyKOI_Xv5PMfSzubEW9cwcBSxSg2wvhMyO5SLdQ_4VoudxpCkPEjzVVmBYkSAPlNxhkXQ/exec";
+
+
+  // ==================================================
+  // 状態
+  // ==================================================
+
+  let mode = "login";
+
+
+  // ==================================================
+  // HTML取得
+  // ==================================================
+
+  const authSection = document.getElementById("authSection");
+  const mainSection = document.getElementById("mainSection");
+
+  const title = document.getElementById("title");
+  const description = document.getElementById("description");
+
+  const emailInput = document.getElementById("email");
+  const passwordInput = document.getElementById("password");
+  const codeInput = document.getElementById("code");
+
+  const passwordGroup = document.getElementById("passwordGroup");
+  const codeGroup = document.getElementById("codeGroup");
+
+  const submitBtn = document.getElementById("submitBtn");
+  const toggleBtn = document.getElementById("toggleBtn");
+
+  const message = document.getElementById("message");
+
+  const displayName = document.getElementById("displayName");
+  const userEmail = document.getElementById("userEmail");
+  const userRole = document.getElementById("userRole");
+
+  const logoutBtn = document.getElementById("logoutBtn");
+
+
+  // ==================================================
+  // GAS通信
+  // ==================================================
+
+  async function callGAS(payload) {
+
+    const response = await fetch(GAS_URL, {
+      method: "POST",
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      throw new Error("通信エラー");
+    }
+
+    return await response.json();
+  }
+
+
+  // ==================================================
+  // メッセージ
+  // ==================================================
+
+  function showMessage(text, type = "normal") {
+
+    message.textContent = text;
+
+    if (type === "error") {
+      message.style.color = "#dc3545";
+    }
+    else if (type === "success") {
+      message.style.color = "#198754";
+    }
+    else {
+      message.style.color = "#555";
+    }
+  }
+
+
+  // ==================================================
+  // ログイン画面
+  // ==================================================
+
+  function setLoginMode() {
+
+    mode = "login";
+
+    title.textContent = "Akagi ID ログイン";
+
+    description.textContent =
+      "Akagi IDでログインしてください。";
+
+    passwordGroup.classList.remove("hidden");
+    codeGroup.classList.add("hidden");
+
+    submitBtn.textContent = "ログイン";
+    toggleBtn.textContent = "新規アカウントを作成";
+
+    toggleBtn.classList.remove("hidden");
+
+    passwordInput.value = "";
+    codeInput.value = "";
+
+    showMessage("");
+  }
+
+
+  // ==================================================
+  // 新規登録画面
+  // ==================================================
+
+  function setRegisterMode() {
+
+    mode = "register";
+
+    title.textContent = "Akagi ID 新規登録";
+
+    description.textContent =
+      "メールアドレスとパスワードを入力してください。";
+
+    passwordGroup.classList.remove("hidden");
+    codeGroup.classList.add("hidden");
+
+    submitBtn.textContent =
+      "確認コードを送信";
+
+    toggleBtn.textContent =
+      "ログインに戻る";
+
+    toggleBtn.classList.remove("hidden");
+
+    codeInput.value = "";
+
+    showMessage("");
+  }
+
+
+  // ==================================================
+  // 確認コード画面
+  // ==================================================
+
+  function setVerifyMode() {
+
+    mode = "verify";
+
+    title.textContent = "メールアドレス確認";
+
+    description.textContent =
+      "メールに届いた6桁の確認コードを入力してください。";
+
+    passwordGroup.classList.add("hidden");
+    codeGroup.classList.remove("hidden");
+
+    submitBtn.textContent =
+      "アカウントを作成";
+
+    toggleBtn.classList.add("hidden");
+
+    showMessage(
+      "確認コードをメールに送信しました。",
+      "success"
+    );
+  }
+
+
+  // ==================================================
+  // モード切り替え
+  // ==================================================
+
+  toggleBtn.addEventListener("click", function() {
+
+    if (mode === "login") {
+      setRegisterMode();
+    }
+    else {
+      setLoginMode();
+    }
+
+  });
+
+
+  // ==================================================
+  // メインボタン
+  // ==================================================
+
+  submitBtn.addEventListener("click", async function() {
+
+    const email =
+      emailInput.value.trim().toLowerCase();
+
+    const password =
+      passwordInput.value;
+
+    showMessage("通信中...");
+
+    // ------------------------------------------
+    // ログイン
+    // ------------------------------------------
+
+    if (mode === "login") {
+
+      if (!email || !password) {
+
+        showMessage(
+          "メールアドレスとパスワードを入力してください。",
+          "error"
+        );
+
+        return;
+      }
+
+      try {
+
+        const result = await callGAS({
+          action: "login",
+          email: email,
+          password: password
+        });
+
+        if (result.status === "success") {
+
+          localStorage.setItem(
+            "auth_token",
+            result.token
+          );
+
+          await checkSession();
+
+        }
+        else {
+
+          showMessage(
+            result.message || "ログインに失敗しました。",
+            "error"
+          );
+
+        }
+
+      }
+      catch (error) {
+
+        console.error(error);
+
+        showMessage(
+          "通信エラーが発生しました。",
+          "error"
+        );
+
+      }
+
+      return;
+    }
+
+
+    // ------------------------------------------
+    // 新規登録
+    // ------------------------------------------
+
+    if (mode === "register") {
+
+      if (!email || !password) {
+
+        showMessage(
+          "メールアドレスとパスワードを入力してください。",
+          "error"
+        );
+
+        return;
+      }
+
+      if (password.length < 8) {
+
+        showMessage(
+          "パスワードは8文字以上にしてください。",
+          "error"
+        );
+
+        return;
+      }
+
+      try {
+
+        const result = await callGAS({
+          action: "register",
+          email: email,
+          password: password
+        });
+
+        if (result.status === "success") {
+
+          setVerifyMode();
+
+        }
+        else {
+
+          showMessage(
+            result.message || "登録に失敗しました。",
+            "error"
+          );
+
+        }
+
+      }
+      catch (error) {
+
+        console.error(error);
+
+        showMessage(
+          "通信エラーが発生しました。",
+          "error"
+        );
+
+      }
+
+      return;
+    }
+
+
+    // ------------------------------------------
+    // 確認コード
+    // ------------------------------------------
+
+    if (mode === "verify") {
+
+      const code =
+        codeInput.value.trim();
+
+      if (!email || !code) {
+
+        showMessage(
+          "メールアドレスと確認コードを入力してください。",
+          "error"
+        );
+
+        return;
+      }
+
+      if (!/^\d{6}$/.test(code)) {
+
+        showMessage(
+          "確認コードは6桁の数字です。",
+          "error"
+        );
+
+        return;
+      }
+
+      try {
+
+        const result = await callGAS({
+          action: "verify_code",
+          email: email,
+          code: code,
+          password: passwordInput.value
+        });
+
+        if (result.status === "success") {
+
+          alert(
+            "Akagi IDの登録が完了しました！\nログインしてください。"
+          );
+
+          setLoginMode();
+
+        }
+        else {
+
+          showMessage(
+            result.message || "確認に失敗しました。",
+            "error"
+          );
+
+        }
+
+      }
+      catch (error) {
+
+        console.error(error);
+
+        showMessage(
+          "通信エラーが発生しました。",
+          "error"
+        );
+
+      }
+
+    }
+
+  });
+
+
+  // ==================================================
+  // セッション確認
+  // ==================================================
+
+  async function checkSession() {
+
+    const token =
+      localStorage.getItem("auth_token");
+
+    if (!token) {
+      return;
+    }
+
+    try {
+
+      const result = await callGAS({
+        action: "session_check",
+        token: token
+      });
+
+      if (result.status === "success") {
+
+        authSection.classList.add("hidden");
+        mainSection.classList.remove("hidden");
+
+        displayName.textContent =
+          result.display_name || "Akagi IDユーザー";
+
+        userEmail.textContent =
+          result.email || "";
+
+        userRole.textContent =
+          result.role || "user";
+
+      }
+      else {
+
+        localStorage.removeItem("auth_token");
+
+        setLoginMode();
+
+      }
+
+    }
+    catch (error) {
+
+      console.error(error);
+
+      localStorage.removeItem("auth_token");
+
+      setLoginMode();
+
+    }
+
+  }
+
+
+  // ==================================================
+  // ログアウト
+  // ==================================================
+
+  logoutBtn.addEventListener("click", async function() {
+
+    const token =
+      localStorage.getItem("auth_token");
+
+    try {
+
+      await callGAS({
+        action: "logout",
+        token: token
+      });
+
+    }
+    catch (error) {
+
+      console.error(error);
+
+    }
+
+    localStorage.removeItem("auth_token");
+
+    location.reload();
+
+  });
+
+
+  // ==================================================
+  // 起動時
+  // ==================================================
+
+  window.addEventListener("load", function() {
+
+    setLoginMode();
+
+    checkSession();
+
+  });
+
+</script>
+
+</body>
+</html>
