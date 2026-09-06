@@ -13,7 +13,8 @@
 
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
       background: #f5f5f5;
       color: #222;
     }
@@ -122,9 +123,9 @@
       Akagi IDでログインしてください。
     </p>
 
-    <!-- メール -->
     <div class="input-group">
       <label for="email">メールアドレス</label>
+
       <input
         type="email"
         id="email"
@@ -133,20 +134,23 @@
       >
     </div>
 
-    <!-- パスワード -->
     <div class="input-group" id="passwordGroup">
+
       <label for="password">パスワード</label>
+
       <input
         type="password"
         id="password"
         placeholder="8文字以上"
         autocomplete="current-password"
       >
+
     </div>
 
-    <!-- 確認コード -->
     <div class="input-group hidden" id="codeGroup">
+
       <label for="code">確認コード</label>
+
       <input
         type="text"
         id="code"
@@ -154,6 +158,7 @@
         inputmode="numeric"
         maxlength="6"
       >
+
     </div>
 
     <button id="submitBtn" class="btn primary">
@@ -226,29 +231,53 @@
   // HTML取得
   // ==================================================
 
-  const authSection = document.getElementById("authSection");
-  const mainSection = document.getElementById("mainSection");
+  const authSection =
+    document.getElementById("authSection");
 
-  const title = document.getElementById("title");
-  const description = document.getElementById("description");
+  const mainSection =
+    document.getElementById("mainSection");
 
-  const emailInput = document.getElementById("email");
-  const passwordInput = document.getElementById("password");
-  const codeInput = document.getElementById("code");
+  const title =
+    document.getElementById("title");
 
-  const passwordGroup = document.getElementById("passwordGroup");
-  const codeGroup = document.getElementById("codeGroup");
+  const description =
+    document.getElementById("description");
 
-  const submitBtn = document.getElementById("submitBtn");
-  const toggleBtn = document.getElementById("toggleBtn");
+  const emailInput =
+    document.getElementById("email");
 
-  const message = document.getElementById("message");
+  const passwordInput =
+    document.getElementById("password");
 
-  const displayName = document.getElementById("displayName");
-  const userEmail = document.getElementById("userEmail");
-  const userRole = document.getElementById("userRole");
+  const codeInput =
+    document.getElementById("code");
 
-  const logoutBtn = document.getElementById("logoutBtn");
+  const passwordGroup =
+    document.getElementById("passwordGroup");
+
+  const codeGroup =
+    document.getElementById("codeGroup");
+
+  const submitBtn =
+    document.getElementById("submitBtn");
+
+  const toggleBtn =
+    document.getElementById("toggleBtn");
+
+  const message =
+    document.getElementById("message");
+
+  const displayName =
+    document.getElementById("displayName");
+
+  const userEmail =
+    document.getElementById("userEmail");
+
+  const userRole =
+    document.getElementById("userRole");
+
+  const logoutBtn =
+    document.getElementById("logoutBtn");
 
 
   // ==================================================
@@ -279,39 +308,47 @@
     message.textContent = text;
 
     if (type === "error") {
+
       message.style.color = "#dc3545";
-    }
-    else if (type === "success") {
+
+    } else if (type === "success") {
+
       message.style.color = "#198754";
-    }
-    else {
+
+    } else {
+
       message.style.color = "#555";
+
     }
   }
 
 
   // ==================================================
-  // ログイン画面
+  // ログインモード
   // ==================================================
 
   function setLoginMode() {
 
     mode = "login";
 
-    title.textContent = "Akagi ID ログイン";
+    title.textContent =
+      "Akagi ID ログイン";
 
     description.textContent =
       "Akagi IDでログインしてください。";
 
     passwordGroup.classList.remove("hidden");
+
     codeGroup.classList.add("hidden");
 
-    submitBtn.textContent = "ログイン";
-    toggleBtn.textContent = "新規アカウントを作成";
+    submitBtn.textContent =
+      "ログイン";
+
+    toggleBtn.textContent =
+      "新規アカウントを作成";
 
     toggleBtn.classList.remove("hidden");
 
-    passwordInput.value = "";
     codeInput.value = "";
 
     showMessage("");
@@ -319,19 +356,21 @@
 
 
   // ==================================================
-  // 新規登録画面
+  // 登録モード
   // ==================================================
 
   function setRegisterMode() {
 
     mode = "register";
 
-    title.textContent = "Akagi ID 新規登録";
+    title.textContent =
+      "Akagi ID 新規登録";
 
     description.textContent =
       "メールアドレスとパスワードを入力してください。";
 
     passwordGroup.classList.remove("hidden");
+
     codeGroup.classList.add("hidden");
 
     submitBtn.textContent =
@@ -349,19 +388,21 @@
 
 
   // ==================================================
-  // 確認コード画面
+  // 確認コードモード
   // ==================================================
 
   function setVerifyMode() {
 
     mode = "verify";
 
-    title.textContent = "メールアドレス確認";
+    title.textContent =
+      "メールアドレス確認";
 
     description.textContent =
       "メールに届いた6桁の確認コードを入力してください。";
 
-    passwordGroup.classList.add("hidden");
+    passwordGroup.classList.remove("hidden");
+
     codeGroup.classList.remove("hidden");
 
     submitBtn.textContent =
@@ -383,10 +424,13 @@
   toggleBtn.addEventListener("click", function() {
 
     if (mode === "login") {
+
       setRegisterMode();
-    }
-    else {
+
+    } else {
+
       setLoginMode();
+
     }
 
   });
@@ -404,8 +448,6 @@
     const password =
       passwordInput.value;
 
-    showMessage("通信中...");
-
     // ------------------------------------------
     // ログイン
     // ------------------------------------------
@@ -422,13 +464,17 @@
         return;
       }
 
+      showMessage("通信中...");
+
       try {
 
-        const result = await callGAS({
-          action: "login",
-          email: email,
-          password: password
-        });
+        const result =
+          await callGAS({
+            action: "login",
+            email: email,
+            password: password
+          });
+
 
         if (result.status === "success") {
 
@@ -439,18 +485,17 @@
 
           await checkSession();
 
-        }
-        else {
+        } else {
 
           showMessage(
-            result.message || "ログインに失敗しました。",
+            result.message ||
+            "ログインに失敗しました。",
             "error"
           );
 
         }
 
-      }
-      catch (error) {
+      } catch (error) {
 
         console.error(error);
 
@@ -481,6 +526,7 @@
         return;
       }
 
+
       if (password.length < 8) {
 
         showMessage(
@@ -491,30 +537,35 @@
         return;
       }
 
+
+      showMessage("確認コードを送信中...");
+
+
       try {
 
-        const result = await callGAS({
-          action: "register",
-          email: email,
-          password: password
-        });
+        const result =
+          await callGAS({
+            action: "register",
+            email: email,
+            password: password
+          });
+
 
         if (result.status === "success") {
 
           setVerifyMode();
 
-        }
-        else {
+        } else {
 
           showMessage(
-            result.message || "登録に失敗しました。",
+            result.message ||
+            "登録に失敗しました。",
             "error"
           );
 
         }
 
-      }
-      catch (error) {
+      } catch (error) {
 
         console.error(error);
 
@@ -538,15 +589,17 @@
       const code =
         codeInput.value.trim();
 
-      if (!email || !code) {
+
+      if (!email || !password || !code) {
 
         showMessage(
-          "メールアドレスと確認コードを入力してください。",
+          "メールアドレス・パスワード・確認コードを入力してください。",
           "error"
         );
 
         return;
       }
+
 
       if (!/^\d{6}$/.test(code)) {
 
@@ -558,14 +611,20 @@
         return;
       }
 
+
+      showMessage("アカウントを作成中...");
+
+
       try {
 
-        const result = await callGAS({
-          action: "verify_code",
-          email: email,
-          code: code,
-          password: passwordInput.value
-        });
+        const result =
+          await callGAS({
+            action: "verify_code",
+            email: email,
+            code: code,
+            password: password
+          });
+
 
         if (result.status === "success") {
 
@@ -573,20 +632,23 @@
             "Akagi IDの登録が完了しました！\nログインしてください。"
           );
 
+          passwordInput.value = "";
+
+          codeInput.value = "";
+
           setLoginMode();
 
-        }
-        else {
+        } else {
 
           showMessage(
-            result.message || "確認に失敗しました。",
+            result.message ||
+            "確認に失敗しました。",
             "error"
           );
 
         }
 
-      }
-      catch (error) {
+      } catch (error) {
 
         console.error(error);
 
@@ -611,33 +673,44 @@
     const token =
       localStorage.getItem("auth_token");
 
+
     if (!token) {
       return;
     }
 
+
     try {
 
-      const result = await callGAS({
-        action: "session_check",
-        token: token
-      });
+      const result =
+        await callGAS({
+          action: "session_check",
+          token: token
+        });
+
 
       if (result.status === "success") {
 
         authSection.classList.add("hidden");
+
         mainSection.classList.remove("hidden");
 
+
         displayName.textContent =
-          result.display_name || "Akagi IDユーザー";
+          result.display_name ||
+          "Akagi IDユーザー";
+
 
         userEmail.textContent =
-          result.email || "";
+          result.email ||
+          "";
+
 
         userRole.textContent =
-          result.role || "user";
+          result.role ||
+          "user";
 
-      }
-      else {
+
+      } else {
 
         localStorage.removeItem("auth_token");
 
@@ -645,8 +718,7 @@
 
       }
 
-    }
-    catch (error) {
+    } catch (error) {
 
       console.error(error);
 
@@ -668,6 +740,7 @@
     const token =
       localStorage.getItem("auth_token");
 
+
     try {
 
       await callGAS({
@@ -675,12 +748,12 @@
         token: token
       });
 
-    }
-    catch (error) {
+    } catch (error) {
 
       console.error(error);
 
     }
+
 
     localStorage.removeItem("auth_token");
 
@@ -690,7 +763,7 @@
 
 
   // ==================================================
-  // 起動時
+  // 起動
   // ==================================================
 
   window.addEventListener("load", function() {
