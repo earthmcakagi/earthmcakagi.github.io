@@ -5,29 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>マイクラサーバー Wiki</title>
     <style>
-        /* 全体の基本設定（普通のWikiサイト風の白背景） */
         body {
             font-family: 'Helvetica Neue', Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
             background-color: #ffffff;
-            color: #202122; /* Wikipedia等でよく使われる少し優しい黒 */
+            color: #202122;
             margin: 0;
             padding: 0;
         }
 
-        /* 画面全体に広がるレイアウトの枠組み */
         .wiki-wrapper {
             display: flex;
             min-height: 100vh;
         }
 
-        /* 左側：ナビゲーションメニュー（普通のWiki風） */
         .sidebar-left {
-            width: 220px; /* メニューの幅を固定 */
-            background-color: #f6f6f6; /* 少しグレーにしてメニュー感を出します */
+            width: 220px;
+            background-color: #f6f6f6;
             border-right: 1px solid #a2a9b1;
             padding: 20px;
             box-sizing: border-box;
-            flex-shrink: 0; /* 画面が狭くなっても潰れないように固定 */
+            flex-shrink: 0;
         }
         .sidebar-left ul {
             list-style: none;
@@ -39,7 +36,7 @@
             font-size: 14px;
         }
         .sidebar-left a {
-            color: #0645ad; /* Wiki特有の青色のリンク */
+            color: #0645ad;
             text-decoration: none;
         }
         .sidebar-left a:hover {
@@ -51,7 +48,6 @@
             color: #54595d;
         }
 
-        /* 中央と右側をまとめるエリア（画面の残りの幅をすべて使う） */
         .content-body {
             display: flex;
             flex-grow: 1;
@@ -60,17 +56,16 @@
             box-sizing: border-box;
         }
 
-        /* 中央：メインコンテンツ（本文） */
         .main-content {
-            flex-grow: 1; /* 空いているスペースをいっぱいに広げる */
-            min-width: 0; /* 文字溢れ防止 */
+            flex-grow: 1;
+            min-width: 0;
         }
         .main-content h1 {
             font-size: 28px;
             font-weight: normal;
             margin-top: 0;
             margin-bottom: 20px;
-            border-bottom: 1px solid #a2a9b1; /* Wikiっぽい細い区切り線 */
+            border-bottom: 1px solid #a2a9b1;
             padding-bottom: 5px;
         }
         .main-content h2 {
@@ -87,14 +82,13 @@
             margin: 0 0 15px 0;
         }
 
-        /* 右側：画像やアイテム情報（パワポの配置を再現） */
         .sidebar-right {
-            width: 280px; /* 右側ボックスの幅 */
+            width: 280px;
             border: 1px solid #a2a9b1;
             background-color: #f8f9fa;
             padding: 15px;
             box-sizing: border-box;
-            align-self: flex-start; /* 縦にびよーんと伸びるのを防ぐ */
+            align-self: flex-start;
             flex-shrink: 0;
         }
         .item-title {
@@ -110,7 +104,7 @@
             width: 100%;
             aspect-ratio: 4 / 3;
             background-color: #ffffff;
-            border: 1px solid #ccccff; /* マイクラ画像が映える薄い枠線 */
+            border: 1px solid #ccccff;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -118,7 +112,6 @@
             color: #72777d;
         }
 
-        /* スマホで見やすくするための設定 */
         @media (max-width: 850px) {
             .wiki-wrapper {
                 flex-direction: column;
@@ -134,7 +127,7 @@
             }
             .sidebar-right {
                 width: 100%;
-                order: -1; /* スマホでは本文より上に画像を出す（お好みで） */
+                order: -1;
             }
         }
     </style>
@@ -143,18 +136,15 @@
 
     <div class="wiki-wrapper">
         
-        <!-- 左ナビゲーション（メニュー） -->
         <nav class="sidebar-left">
             <ul>
-                <li><a href="#">Voteについて</a></li>
-                <li class="child-menu">┗ <a href="#">Voteのやり方とは</a></li>
+                <li><a href="index.html">Voteについて</a></li>
+                <li class="child-menu">┗ <a href="index.html">Voteのやり方とは</a></li>
             </ul>
         </nav>
 
-        <!-- メインと右側を包むエリア -->
         <div class="content-body">
             
-            <!-- 中央の本文エリア -->
             <main class="main-content">
                 <h1>Voteについて</h1>
                 
@@ -162,10 +152,8 @@
                 <p>マイクラにはいって/Voteと入力し出てきたリンクにアクセスし投票します</p>
             </main>
 
-            <!-- 右側の画像・情報エリア -->
             <aside class="sidebar-right">
                 <div class="item-title">ゴールデンクレート</div>
-                <!-- 実際の画像を入れる場合は <img src="画像ファイル名.png" width="100%"> に差し替えます -->
                 <div class="image-box">画像</div>
             </aside>
 
